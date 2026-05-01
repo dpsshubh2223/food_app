@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "770245856829",
+    "firebase_url": "https://bazermart-default-rtdb.firebaseio.com",
+    "project_id": "bazermart",
+    "storage_bucket": "bazermart.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:770245856829:android:e4a029523b5e782e13a454",
+        "android_client_info": {
+          "package_name": "com.bazermartin.com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVJHHJLYQXHxT2kWFk_ml3Nnf_aTYttwk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
