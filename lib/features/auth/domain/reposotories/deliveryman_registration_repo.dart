@@ -29,6 +29,8 @@ class DeliverymanRegistrationRepo implements DeliverymanRegistrationRepoInterfac
   Future<List<ZoneModel>?> getList({int? offset, bool? forDeliveryRegistration}) async{
     List<ZoneModel>? zoneList ;
     Response response = await apiClient.getData(AppConstants.zoneListUri);
+    print("ZoneResponse");
+    print(response.body);
     if(response.statusCode == 200) {
       zoneList = [];
       if(forDeliveryRegistration!){

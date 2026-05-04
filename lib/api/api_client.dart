@@ -59,21 +59,23 @@ class ApiClient extends GetxService {
   Map<String, String> getHeader() => _mainHeaders;
 
   Future<Response> getData(String uri, {Map<String, dynamic>? query, Map<String, String>? headers, bool handleError = true, bool showToaster = false}) async {
-    try {
+  //  try {
       if(kDebugMode) {
         debugPrint('====> API Call: $uri\nHeader: $_mainHeaders');
       }
+      print(headers);
+      print(_mainHeaders);
       http.Response response = await http.get(
         Uri.parse(appBaseUrl+uri),
         headers: headers ?? _mainHeaders,
       ).timeout(Duration(seconds: timeoutInSeconds));
       return handleResponse(response, uri, handleError, showToaster: showToaster);
-    } catch (e) {
-      if (kDebugMode) {
-        print('----------------${e.toString()}');
-      }
-      return  Response(statusCode: 1, statusText: noInternetMessage);
-    }
+    // } catch (e) {
+    //   if (kDebugMode) {
+    //     print('----------------${e.toString()}');
+    //   }
+    //   return  Response(statusCode: 1, statusText: noInternetMessage);
+    // }
   }
 
   Future<Response> postData(String uri, dynamic body, {Map<String, String>? headers, bool handleError = true}) async {

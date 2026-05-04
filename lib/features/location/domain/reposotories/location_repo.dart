@@ -14,6 +14,9 @@ class LocationRepo implements LocationRepoInterface {
 
   @override
   Future<ZoneResponseModel> getZone(String? lat, String? lng) async {
+    print("LatLong");
+    print(lat);
+    print(lng);
     Response response = await apiClient.getData('${AppConstants.zoneUri}?lat=$lat&lng=$lng', handleError: false);
     if(response.statusCode == 200) {
       ZoneResponseModel responseModel;

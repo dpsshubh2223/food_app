@@ -135,19 +135,21 @@ class DateConverter {
 
   static bool isAvailable(String? start, String? end, {DateTime? time, bool isoTime = false}) {
     DateTime currentTime;
-    if(time != null) {
+    if (time != null) {
       currentTime = time;
-    }else {
-      currentTime = Get.find<SplashController>().currentTime;
+    } else {
+      currentTime = Get
+          .find<SplashController>()
+          .currentTime;
     }
     DateTime start0 = start != null ? isoTime ? isoStringToLocalDate(start) : DateFormat('HH:mm').parse(start) : DateTime(currentTime.year);
     DateTime end0 = end != null ? isoTime ? isoStringToLocalDate(end) : DateFormat('HH:mm').parse(end) : DateTime(currentTime.year, currentTime.month, currentTime.day, 23, 59);
     DateTime startTime = DateTime(currentTime.year, currentTime.month, currentTime.day, start0.hour, start0.minute, start0.second);
     DateTime endTime = DateTime(currentTime.year, currentTime.month, currentTime.day, end0.hour, end0.minute, end0.second);
-    if(endTime.isBefore(startTime)) {
-      if(currentTime.isBefore(startTime) && currentTime.isBefore(endTime)){
+    if (endTime.isBefore(startTime)) {
+      if (currentTime.isBefore(startTime) && currentTime.isBefore(endTime)) {
         startTime = startTime.add(const Duration(days: -1));
-      }else {
+      } else {
         endTime = endTime.add(const Duration(days: 1));
       }
     }
@@ -155,28 +157,35 @@ class DateConverter {
   }
 
   static String _timeFormatter() {
-    return Get.find<SplashController>().configModel!.timeformat == '24' ? 'HH:mm' : 'hh:mm a';
+    return Get
+        .find<SplashController>()
+        .configModel!
+        .timeformat == '24' ? 'HH:mm' : 'hh:mm a';
   }
 
   static int differenceInMinute(String? deliveryTime, String? orderTime, int? processingTime, String? scheduleAt, {bool fromDineIn = false, String? processing}) {
     // 'min', 'hours', 'days'
-    if(fromDineIn && processingTime != null && processing != null) {
+    if (fromDineIn && processingTime != null && processing != null) {
       DateTime deliveryTime0 = dateTimeStringToDate(processing).add(Duration(minutes: processingTime));
-      return deliveryTime0.difference(DateTime.now()).inMinutes;
+      return deliveryTime0
+          .difference(DateTime.now())
+          .inMinutes;
     }
     int minTime = processingTime ?? 0;
-    if(deliveryTime != null && deliveryTime.isNotEmpty && processingTime == null) {
+    if (deliveryTime != null && deliveryTime.isNotEmpty && processingTime == null) {
       try {
         List<String> timeList = deliveryTime.split('-'); // ['15', '20']
         minTime = int.parse(timeList[0]);
-      }catch(_) {}
+      } catch (_) {}
     }
     DateTime deliveryTime0 = dateTimeStringToDate(scheduleAt ?? orderTime!).add(Duration(minutes: minTime));
-    return deliveryTime0.difference(DateTime.now()).inMinutes;
+    return deliveryTime0
+        .difference(DateTime.now())
+        .inMinutes;
   }
 
   static bool isBeforeTime(String? dateTime) {
-    if(dateTime == null) {
+    if (dateTime == null) {
       return false;
     }
     DateTime scheduleTime = dateTimeStringToDate(dateTime);
@@ -186,11 +195,11 @@ class DateConverter {
   static int getWeekDaysCount(DateTimeRange range, List<int> weekdays) {
     int quantity = 0;
     DateTime startDate = range.start;
-    for(int index=0; index<(range.duration.inDays+1); index++) {
-      if((startDate.isBefore(range.end) || startDate.isAtSameMomentAs(range.end)) && weekdays.contains(startDate.weekday)) {
+    for (int index = 0; index < (range.duration.inDays + 1); index++) {
+      if ((startDate.isBefore(range.end) || startDate.isAtSameMomentAs(range.end)) && weekdays.contains(startDate.weekday)) {
         quantity++;
       }
-      if(startDate.isAfter(range.end)) {
+      if (startDate.isAfter(range.end)) {
         break;
       }
       startDate = startDate.add(const Duration(days: 1));
@@ -201,11 +210,11 @@ class DateConverter {
   static int getMonthDaysCount(DateTimeRange range, List<int> days) {
     int quantity = 0;
     DateTime startDate = range.start;
-    for(int index=0; index<(range.duration.inDays+1); index++) {
-      if((startDate.isBefore(range.end) || startDate.isAtSameMomentAs(range.end)) && days.contains(startDate.day)) {
+    for (int index = 0; index < (range.duration.inDays + 1); index++) {
+      if ((startDate.isBefore(range.end) || startDate.isAtSameMomentAs(range.end)) && days.contains(startDate.day)) {
         quantity++;
       }
-      if(startDate.isAfter(range.end)) {
+      if (startDate.isAfter(range.end)) {
         break;
       }
       startDate = startDate.add(const Duration(days: 1));
@@ -214,7 +223,7 @@ class DateConverter {
   }
 
   static String containTAndZToUTCFormat(String time) {
-    var newTime = '${time.substring(0,10)} ${time.substring(11,23)}';
+    var newTime = '${time.substring(0, 10)} ${time.substring(11, 23)}';
     return DateFormat('dd MMM, yyyy').format(DateFormat('yyyy-MM-dd HH:mm:ss').parse(newTime));
 
     // return DateFormat('${_timeFormatter()} | d-MMM-yyyy ').format(dateTime.toLocal());
@@ -244,19 +253,21 @@ class DateConverter {
   static int countDays(DateTime ? dateTime) {
     final startDate = dateTime!;
     final endDate = DateTime.now();
-    final difference = endDate.difference(startDate).inDays;
+    final difference = endDate
+        .difference(startDate)
+        .inDays;
     return difference;
   }
 
   static String convert24HourTimeTo12HourTimeWithDay(DateTime time, bool isToday) {
-    if(isToday){
+    if (isToday) {
       return DateFormat('\'Today at\' ${_timeFormatter()}').format(time);
-    }else{
+    } else {
       return DateFormat('\'Yesterday at\' ${_timeFormatter()}').format(time);
     }
   }
 
-  static String convertStringTimeToDateTime (DateTime time){
+  static String convertStringTimeToDateTime(DateTime time) {
     return DateFormat('EEE \'at\' ${_timeFormatter()}').format(time.toLocal());
   }
 
@@ -269,7 +280,6 @@ class DateConverter {
     List<String> times = formattedTime.split(':');
 
     return DateTime(selectedDineInDate.year, selectedDineInDate.month, selectedDineInDate.day, int.parse(times[0]), int.parse(times[1]));
-
   }
 
   static bool isToday(DateTime date1) {
@@ -278,6 +288,7 @@ class DateConverter {
         date1.month == date2.month &&
         date1.day == date2.day;
   }
+
   static bool isTomorrow(DateTime date1) {
     DateTime date2 = DateTime.now().add(Duration(days: 1));
     return date1.year == date2.year &&
@@ -291,7 +302,6 @@ class DateConverter {
     int remainingMinutes = minutes % 60; // Remaining minutes
     return '${days != 0 ? '${days}d' : ''} ${hours != 0 ? '${hours}hr' : ''} ${remainingMinutes != 0 ? '${remainingMinutes}min' : ''}'; // Format as "Xd Yh Zm"
   }
-
 
 
 }
