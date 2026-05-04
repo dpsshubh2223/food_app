@@ -22,6 +22,14 @@ class UserInfoModel {
   String? discountAmountType;
   bool? isPhoneVerified;
   bool? isEmailVerified;
+  int? zoneId;
+  int? areaId;
+  int? buildingId;
+  int? companyId;
+  String? zoneName;
+  String? areaName;
+  String? buildingName;
+  String? companyName;
 
   UserInfoModel({
     this.id,
@@ -45,6 +53,14 @@ class UserInfoModel {
     this.discountAmountType,
     this.isPhoneVerified,
     this.isEmailVerified,
+    this.zoneId,
+    this.areaId,
+    this.buildingId,
+    this.companyId,
+    this.zoneName,
+    this.areaName,
+    this.buildingName,
+    this.companyName,
   });
 
   UserInfoModel.fromJson(Map<String, dynamic> json) {
@@ -61,7 +77,8 @@ class UserInfoModel {
     loyaltyPoint = json['loyalty_point'];
     refCode = json['ref_code'];
     socialId = json['social_id'];
-    userInfo = json['userinfo'] != null ? User.fromJson(json['userinfo']) : null;
+    userInfo =
+        json['userinfo'] != null ? User.fromJson(json['userinfo']) : null;
     createdAt = json['created_at'];
     validity = json['validity'];
     isValidForDiscount = json['is_valid_for_discount'] ?? false;
@@ -69,6 +86,27 @@ class UserInfoModel {
     discountAmountType = json['discount_amount_type'];
     isPhoneVerified = json['is_phone_verified'] == 1;
     isEmailVerified = json['is_email_verified'] == 1;
+    zoneId = json['zone_id'] is int
+        ? json['zone_id']
+        : int.tryParse('${json['zone_id']}');
+    areaId = json['area_id'] is int
+        ? json['area_id']
+        : int.tryParse('${json['area_id']}');
+    buildingId = json['building_id'] is int
+        ? json['building_id']
+        : int.tryParse('${json['building_id']}');
+    companyId = json['company_id'] is int
+        ? json['company_id']
+        : int.tryParse('${json['company_id']}');
+    zoneName =
+        json['zone_name']?.toString() ?? json['zone']?['name']?.toString();
+    areaName =
+        json['area_name']?.toString() ?? json['area']?['name']?.toString();
+    buildingName = json['building_name']?.toString() ??
+        json['building']?['name']?.toString();
+    companyName = json['company_name']?.toString() ??
+        json['company']?['name']?.toString() ??
+        json['organization']?['name']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -95,6 +133,14 @@ class UserInfoModel {
     data['discount_amount_type'] = discountAmountType;
     data['is_phone_verified'] = isPhoneVerified;
     data['is_email_verified'] = isEmailVerified;
+    data['zone_id'] = zoneId;
+    data['area_id'] = areaId;
+    data['building_id'] = buildingId;
+    data['company_id'] = companyId;
+    data['zone_name'] = zoneName;
+    data['area_name'] = areaName;
+    data['building_name'] = buildingName;
+    data['company_name'] = companyName;
     return data;
   }
 }

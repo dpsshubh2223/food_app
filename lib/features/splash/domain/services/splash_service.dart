@@ -23,11 +23,24 @@ class SplashService implements SplashServiceInterface {
   ConfigModel? prepareConfigData(Response response){
     ConfigModel? configModel;
     if(response.statusCode == 200) {
+      print("Configmodel");
+      printFullResponse(response.body);
       configModel = ConfigModel.fromJson(response.body);
     }
     return configModel;
   }
-
+  void printFullResponse(dynamic data) {
+    final responseString = data is String ? data : data.toString();
+    const chunkSize = 800; // safe chunk size for console
+    for (var i = 0; i < responseString.length; i += chunkSize) {
+      print(responseString.substring(
+        i,
+        i + chunkSize > responseString.length
+            ? responseString.length
+            : i + chunkSize,
+      ));
+    }
+  }
   @override
   Future<bool> initSharedData() {
     return splashRepositoryInterface.initSharedData();

@@ -4,6 +4,7 @@ import 'package:stackfood_multivendor/common/models/response_model.dart';
 import 'package:stackfood_multivendor/api/api_client.dart';
 import 'package:stackfood_multivendor/features/address/domain/models/address_model.dart';
 import 'package:stackfood_multivendor/features/auth/domain/models/signup_body_model.dart';
+import 'package:stackfood_multivendor/features/auth/domain/models/signup_selection_model.dart';
 import 'package:stackfood_multivendor/features/auth/domain/models/social_log_in_body_model.dart';
 import 'package:stackfood_multivendor/features/auth/domain/reposotories/auth_repo_interface.dart';
 import 'package:stackfood_multivendor/helper/address_helper.dart';
@@ -16,19 +17,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
   final ApiClient apiClient;
   final SharedPreferences sharedPreferences;
-  AuthRepo({ required this.sharedPreferences, required this.apiClient});
+  AuthRepo({required this.sharedPreferences, required this.apiClient});
 
   @override
   Future<bool> saveUserToken(String token, {bool alreadyInApp = false}) async {
     apiClient.token = token;
-    if(alreadyInApp && sharedPreferences.getString(AppConstants.userAddress) != null){
-      AddressModel? addressModel = AddressModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.userAddress)!));
+    if (alreadyInApp &&
+        sharedPreferences.getString(AppConstants.userAddress) != null) {
+      AddressModel? addressModel = AddressModel.fromJson(
+          jsonDecode(sharedPreferences.getString(AppConstants.userAddress)!));
       apiClient.updateHeader(
-        token, addressModel.zoneIds, sharedPreferences.getString(AppConstants.languageCode),
-        addressModel.latitude, addressModel.longitude,
+        token,
+        addressModel.zoneIds,
+        sharedPreferences.getString(AppConstants.languageCode),
+        addressModel.latitude,
+        addressModel.longitude,
       );
-    }else{
-      apiClient.updateHeader(token, null, sharedPreferences.getString(AppConstants.languageCode), null, null);
+    } else {
+      apiClient.updateHeader(token, null,
+          sharedPreferences.getString(AppConstants.languageCode), null, null);
     }
 
     return await sharedPreferences.setString(AppConstants.token, token);
@@ -37,34 +44,48 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
   @override
   Future<Response> updateToken({String notificationDeviceToken = ''}) async {
     String? deviceToken;
-    if(notificationDeviceToken.isEmpty){
+    if (notificationDeviceToken.isEmpty) {
       if (GetPlatform.isIOS && !GetPlatform.isWeb) {
-        FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
-        NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
-          alert: true, announcement: false, badge: true, carPlay: false,
-          criticalAlert: false, provisional: false, sound: true,
+        FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+            alert: true, badge: true, sound: true);
+        NotificationSettings settings =
+            await FirebaseMessaging.instance.requestPermission(
+          alert: true,
+          announcement: false,
+          badge: true,
+          carPlay: false,
+          criticalAlert: false,
+          provisional: false,
+          sound: true,
         );
-        if(settings.authorizationStatus == AuthorizationStatus.authorized) {
+        if (settings.authorizationStatus == AuthorizationStatus.authorized) {
           deviceToken = await _saveDeviceToken();
         }
-      }else {
+      } else {
         deviceToken = await _saveDeviceToken();
       }
-      if(!GetPlatform.isWeb) {
+      if (!GetPlatform.isWeb) {
         FirebaseMessaging.instance.subscribeToTopic(AppConstants.topic);
-        FirebaseMessaging.instance.subscribeToTopic('zone_${AddressHelper.getAddressFromSharedPref()!.zoneId}_customer');
-        FirebaseMessaging.instance.subscribeToTopic(AppConstants.maintenanceModeTopic);
+        FirebaseMessaging.instance.subscribeToTopic(
+            'zone_${AddressHelper.getAddressFromSharedPref()!.zoneId}_customer');
+        FirebaseMessaging.instance
+            .subscribeToTopic(AppConstants.maintenanceModeTopic);
       }
     }
-    return await apiClient.postData(AppConstants.tokenUri, {"_method": "put", "cm_firebase_token": notificationDeviceToken.isNotEmpty ? notificationDeviceToken : deviceToken??'@'});
+    return await apiClient.postData(AppConstants.tokenUri, {
+      "_method": "put",
+      "cm_firebase_token": notificationDeviceToken.isNotEmpty
+          ? notificationDeviceToken
+          : deviceToken ?? '@'
+    });
   }
 
   Future<String?> _saveDeviceToken() async {
     String? deviceToken = '@';
-    if(!GetPlatform.isWeb) {
+    if (!GetPlatform.isWeb) {
       try {
         deviceToken = (await FirebaseMessaging.instance.getToken())!;
-      }catch(_) {}
+      } catch (_) {}
     }
     if (deviceToken != null) {
       debugPrint('--------Device Token---------- $deviceToken');
@@ -74,11 +95,18 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
 
   @override
   Future<Response> registration(SignUpBodyModel signUpModel) async {
-    return await apiClient.postData(AppConstants.registerUri, signUpModel.toJson(), handleError: false);
+    return await apiClient.postData(
+        AppConstants.registerUri, signUpModel.toJson(),
+        handleError: false);
   }
 
   @override
-  Future<Response> login({required String emailOrPhone, required String password, required String loginType, required String fieldType, bool alreadyInApp = false}) async {
+  Future<Response> login(
+      {required String emailOrPhone,
+      required String password,
+      required String loginType,
+      required String fieldType,
+      bool alreadyInApp = false}) async {
     String guestId = getGuestId();
     Map<String, String> data = {
       "email_or_phone": emailOrPhone,
@@ -86,53 +114,106 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
       "login_type": loginType,
       "field_type": fieldType,
     };
-    if(guestId.isNotEmpty) {
+    if (guestId.isNotEmpty) {
       data.addAll({"guest_id": guestId});
     }
-    return await apiClient.postData(AppConstants.loginUri, data, handleError: false);
-
+    return await apiClient.postData(AppConstants.loginUri, data,
+        handleError: false);
   }
 
   @override
-  Future<Response> otpLogin({required String phone, required String otp, required String loginType, required String verified}) async {
+  Future<Response> otpLogin(
+      {required String phone,
+      required String otp,
+      required String loginType,
+      required String verified}) async {
     String guestId = getGuestId();
     Map<String, String> data = {
       "phone": phone,
       "login_type": loginType,
     };
-    if(guestId.isNotEmpty) {
+    if (guestId.isNotEmpty) {
       data.addAll({"guest_id": guestId});
     }
-    if(otp.isNotEmpty) {
+    if (otp.isNotEmpty) {
       data.addAll({"otp": otp});
     }
-    if(verified.isNotEmpty) {
+    if (verified.isNotEmpty) {
       data.addAll({"verified": verified});
     }
-    return await apiClient.postData(AppConstants.loginUri, data, handleError: false);
-
+    return await apiClient.postData(AppConstants.loginUri, data,
+        handleError: false);
   }
 
   @override
-  Future<Response> updatePersonalInfo({required String name, required String? phone, required String loginType, required String? email, required String? referCode}) async {
+  Future<Response> updatePersonalInfo(
+      {required String name,
+      required String? phone,
+      required String loginType,
+      required String? email,
+      required String? referCode}) async {
     Map<String, String> data = {
       "login_type": loginType,
       "name": name,
-      "ref_code": referCode??'',
+      "ref_code": referCode ?? '',
     };
-    if(phone != null && phone.isNotEmpty) {
+    if (phone != null && phone.isNotEmpty) {
       data.addAll({"phone": phone});
     }
-    if(email != null && email.isNotEmpty) {
+    if (email != null && email.isNotEmpty) {
       data.addAll({"email": email});
     }
-    return await apiClient.postData(AppConstants.personalInformationUri, data, handleError: false);
+    return await apiClient.postData(AppConstants.personalInformationUri, data,
+        handleError: false);
+  }
 
+  @override
+  Future<List<SignUpSelectionModel>?> getZoneList() async {
+    return _getSelectionList(AppConstants.zoneListUri);
+  }
+
+  @override
+  Future<List<SignUpSelectionModel>?> getAreaList(int zoneId) async {
+    return _getSelectionList('${AppConstants.areaListUri}?zone_id=$zoneId');
+  }
+
+  @override
+  Future<List<SignUpSelectionModel>?> getBuildingList(int areaId) async {
+    return _getSelectionList('${AppConstants.buildingListUri}?area_id=$areaId');
+  }
+
+  @override
+  Future<List<SignUpSelectionModel>?> getOrganizationList(
+      int buildingId) async {
+    return _getSelectionList(
+        '${AppConstants.organizationListUri}?building_id=$buildingId');
+  }
+
+  Future<List<SignUpSelectionModel>?> _getSelectionList(String uri) async {
+    Response response = await apiClient.getData(uri);
+    if (response.statusCode == 200) {
+      dynamic payload = response.body;
+      if (payload is Map) {
+        payload = payload['data'] ??
+            payload['zones'] ??
+            payload['areas'] ??
+            payload['buildings'] ??
+            payload['organizations'] ??
+            [];
+      }
+      Iterable data = payload is List ? payload : [];
+      return data
+          .map((item) =>
+              SignUpSelectionModel.fromJson(Map<String, dynamic>.from(item)))
+          .toList();
+    }
+    return null;
   }
 
   @override
   Future<ResponseModel> guestLogin() async {
-    Response response = await apiClient.postData(AppConstants.guestLoginUri, {}, handleError: false);
+    Response response = await apiClient.postData(AppConstants.guestLoginUri, {},
+        handleError: false);
     if (response.statusCode == 200) {
       saveGuestId(response.body['guest_id'].toString());
       return ResponseModel(true, '${response.body['guest_id']}');
@@ -157,12 +238,18 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
   }
 
   @override
-  Future<void> saveUserNumberAndPassword({required String number, required String password, required String countryCode, required String otpPoneNumber}) async {
+  Future<void> saveUserNumberAndPassword(
+      {required String number,
+      required String password,
+      required String countryCode,
+      required String otpPoneNumber}) async {
     try {
       await sharedPreferences.setString(AppConstants.userPassword, password);
       await sharedPreferences.setString(AppConstants.userNumber, number);
-      await sharedPreferences.setString(AppConstants.userCountryCode, countryCode);
-      await sharedPreferences.setString(AppConstants.userOtpPhoneNumber, otpPoneNumber);
+      await sharedPreferences.setString(
+          AppConstants.userCountryCode, countryCode);
+      await sharedPreferences.setString(
+          AppConstants.userOtpPhoneNumber, otpPoneNumber);
     } catch (e) {
       rethrow;
     }
@@ -202,10 +289,11 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
   }
 
   @override
-  Future<Response> loginWithSocialMedia(SocialLogInBodyModel socialLogInModel) async {
+  Future<Response> loginWithSocialMedia(
+      SocialLogInBodyModel socialLogInModel) async {
     String guestId = getGuestId();
     Map<String, dynamic> data = socialLogInModel.toJson();
-    if(guestId.isNotEmpty) {
+    if (guestId.isNotEmpty) {
       data.addAll({"guest_id": guestId});
     }
     return await apiClient.postData(AppConstants.loginUri, data);
@@ -218,11 +306,13 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
 
   @override
   Future<bool> clearSharedData({bool removeToken = true}) async {
-    if(!GetPlatform.isWeb) {
+    if (!GetPlatform.isWeb) {
       FirebaseMessaging.instance.unsubscribeFromTopic(AppConstants.topic);
-      FirebaseMessaging.instance.unsubscribeFromTopic('zone_${AddressHelper.getAddressFromSharedPref()!.zoneId}_customer');
-      if(removeToken) {
-        await apiClient.postData(AppConstants.tokenUri, {"_method": "put", "cm_firebase_token": '@'});
+      FirebaseMessaging.instance.unsubscribeFromTopic(
+          'zone_${AddressHelper.getAddressFromSharedPref()!.zoneId}_customer');
+      if (removeToken) {
+        await apiClient.postData(AppConstants.tokenUri,
+            {"_method": "put", "cm_firebase_token": '@'});
       }
     }
     sharedPreferences.remove(AppConstants.token);
@@ -230,11 +320,15 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
     sharedPreferences.setStringList(AppConstants.cartList, []);
     apiClient.token = null;
     await guestLogin();
-    if(sharedPreferences.getString(AppConstants.userAddress) != null){
-      AddressModel? addressModel = AddressModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.userAddress)!));
+    if (sharedPreferences.getString(AppConstants.userAddress) != null) {
+      AddressModel? addressModel = AddressModel.fromJson(
+          jsonDecode(sharedPreferences.getString(AppConstants.userAddress)!));
       apiClient.updateHeader(
-        null, addressModel.zoneIds, sharedPreferences.getString(AppConstants.languageCode),
-        addressModel.latitude, addressModel.longitude,
+        null,
+        addressModel.zoneIds,
+        sharedPreferences.getString(AppConstants.languageCode),
+        addressModel.latitude,
+        addressModel.longitude,
       );
     }
     return true;
@@ -247,14 +341,15 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
 
   @override
   Future<void> setNotificationActive(bool isActive) async {
-    if(isActive) {
+    if (isActive) {
       await updateToken();
     } else {
-      if(!GetPlatform.isWeb) {
+      if (!GetPlatform.isWeb) {
         await updateToken(notificationDeviceToken: '@');
         FirebaseMessaging.instance.unsubscribeFromTopic(AppConstants.topic);
-        if(isLoggedIn()) {
-          FirebaseMessaging.instance.unsubscribeFromTopic('zone_${AddressHelper.getAddressFromSharedPref()!.zoneId}_customer');
+        if (isLoggedIn()) {
+          FirebaseMessaging.instance.unsubscribeFromTopic(
+              'zone_${AddressHelper.getAddressFromSharedPref()!.zoneId}_customer');
         }
       }
     }
@@ -300,5 +395,4 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
   Future update(Map<String, dynamic> body, int? id) {
     throw UnimplementedError();
   }
-
 }

@@ -1,6 +1,7 @@
 import 'package:stackfood_multivendor/common/models/response_model.dart';
 import 'package:stackfood_multivendor/features/auth/domain/models/auth_response_model.dart';
 import 'package:stackfood_multivendor/features/auth/domain/models/signup_body_model.dart';
+import 'package:stackfood_multivendor/features/auth/domain/models/signup_selection_model.dart';
 import 'package:stackfood_multivendor/features/auth/domain/models/social_log_in_body_model.dart';
 import 'package:stackfood_multivendor/features/auth/domain/reposotories/auth_repo_interface.dart';
 import 'package:stackfood_multivendor/features/auth/domain/services/auth_service_interface.dart';
@@ -8,61 +9,137 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-class AuthService implements AuthServiceInterface{
+class AuthService implements AuthServiceInterface {
   final AuthRepoInterface authRepoInterface;
   AuthService({required this.authRepoInterface});
 
   @override
   Future<ResponseModel> registration(SignUpBodyModel signUpModel) async {
     Response response = await authRepoInterface.registration(signUpModel);
-    if(response.statusCode == 200){
-      AuthResponseModel authResponse = AuthResponseModel.fromJson(response.body);
+    if (response.statusCode == 200) {
+      AuthResponseModel authResponse =
+          AuthResponseModel.fromJson(response.body);
       await _updateHeaderFunctionality(authResponse, alreadyInApp: false);
-      return ResponseModel(true, authResponse.token??'', authResponseModel: authResponse);
+      return ResponseModel(true, authResponse.token ?? '',
+          authResponseModel: authResponse);
     } else {
-      return ResponseModel(false, response.statusText, code: response.body['errors'] != null ? response.body['errors'][0]['code'] : null);
+      return ResponseModel(false, response.statusText,
+          code: response.body['errors'] != null
+              ? response.body['errors'][0]['code']
+              : null);
     }
   }
 
   @override
-  Future<ResponseModel> login({required String emailOrPhone, required String password, required String loginType, required String fieldType, bool alreadyInApp = false}) async {
-    Response response = await authRepoInterface.login(emailOrPhone: emailOrPhone, password: password, loginType: loginType, fieldType: fieldType);
+  Future<ResponseModel> login(
+      {required String emailOrPhone,
+      required String password,
+      required String loginType,
+      required String fieldType,
+      bool alreadyInApp = false}) async {
+    Response response = await authRepoInterface.login(
+        emailOrPhone: emailOrPhone,
+        password: password,
+        loginType: loginType,
+        fieldType: fieldType);
     if (response.statusCode == 200) {
-      AuthResponseModel authResponse = AuthResponseModel.fromJson(response.body);
-      await _updateHeaderFunctionality(authResponse, alreadyInApp: alreadyInApp);
-      return ResponseModel(true, authResponse.token??'', authResponseModel: authResponse);
+      AuthResponseModel authResponse =
+          AuthResponseModel.fromJson(response.body);
+      await _updateHeaderFunctionality(authResponse,
+          alreadyInApp: alreadyInApp);
+      return ResponseModel(true, authResponse.token ?? '',
+          authResponseModel: authResponse);
     } else {
-      return ResponseModel(false, response.statusText, code: response.body['errors'] != null ? response.body['errors'][0]['code'] : null);
+      return ResponseModel(false, response.statusText,
+          code: response.body['errors'] != null
+              ? response.body['errors'][0]['code']
+              : null);
     }
   }
 
   @override
-  Future<ResponseModel> otpLogin({required String phone, required String otp, required String loginType, required String verified, bool alreadyInApp = false}) async {
-    Response response = await authRepoInterface.otpLogin(phone: phone, otp: otp, loginType: loginType, verified: verified);
+  Future<ResponseModel> otpLogin(
+      {required String phone,
+      required String otp,
+      required String loginType,
+      required String verified,
+      bool alreadyInApp = false}) async {
+    Response response = await authRepoInterface.otpLogin(
+        phone: phone, otp: otp, loginType: loginType, verified: verified);
     if (response.statusCode == 200) {
-      AuthResponseModel authResponse = AuthResponseModel.fromJson(response.body);
-      await _updateHeaderFunctionality(authResponse, alreadyInApp: alreadyInApp);
-      return ResponseModel(true, authResponse.token??'', authResponseModel: authResponse);
+      AuthResponseModel authResponse =
+          AuthResponseModel.fromJson(response.body);
+      await _updateHeaderFunctionality(authResponse,
+          alreadyInApp: alreadyInApp);
+      return ResponseModel(true, authResponse.token ?? '',
+          authResponseModel: authResponse);
     } else {
-      return ResponseModel(false, response.statusText, code: response.body['errors'] != null ? response.body['errors'][0]['code'] : null);
+      return ResponseModel(false, response.statusText,
+          code: response.body['errors'] != null
+              ? response.body['errors'][0]['code']
+              : null);
     }
   }
 
   @override
-  Future<ResponseModel> updatePersonalInfo({required String name, required String? phone, required String loginType, required String? email, required String? referCode, bool alreadyInApp = false}) async {
-    Response response = await authRepoInterface.updatePersonalInfo(name: name, phone: phone, email: email, loginType: loginType, referCode: referCode);
+  Future<ResponseModel> updatePersonalInfo(
+      {required String name,
+      required String? phone,
+      required String loginType,
+      required String? email,
+      required String? referCode,
+      bool alreadyInApp = false}) async {
+    Response response = await authRepoInterface.updatePersonalInfo(
+        name: name,
+        phone: phone,
+        email: email,
+        loginType: loginType,
+        referCode: referCode);
     if (response.statusCode == 200) {
-      AuthResponseModel authResponse = AuthResponseModel.fromJson(response.body);
-      await _updateHeaderFunctionality(authResponse, alreadyInApp: alreadyInApp);
-      return ResponseModel(true, authResponse.token??'', authResponseModel: authResponse);
+      AuthResponseModel authResponse =
+          AuthResponseModel.fromJson(response.body);
+      await _updateHeaderFunctionality(authResponse,
+          alreadyInApp: alreadyInApp);
+      return ResponseModel(true, authResponse.token ?? '',
+          authResponseModel: authResponse);
     } else {
-      return ResponseModel(false, response.statusText, code: response.body['errors'] != null ? response.body['errors'][0]['code'] : null);
+      return ResponseModel(false, response.statusText,
+          code: response.body['errors'] != null
+              ? response.body['errors'][0]['code']
+              : null);
     }
   }
 
-  Future<void> _updateHeaderFunctionality(AuthResponseModel authResponse, {bool alreadyInApp = false}) async {
-    if(authResponse.isEmailVerified! && authResponse.isPhoneVerified! && authResponse.isPersonalInfo! && authResponse.token != null && authResponse.isExistUser == null) {
-      authRepoInterface.saveUserToken(authResponse.token??'', alreadyInApp: alreadyInApp);
+  @override
+  Future<List<SignUpSelectionModel>?> getZoneList() async {
+    return authRepoInterface.getZoneList();
+  }
+
+  @override
+  Future<List<SignUpSelectionModel>?> getAreaList(int zoneId) async {
+    return authRepoInterface.getAreaList(zoneId);
+  }
+
+  @override
+  Future<List<SignUpSelectionModel>?> getBuildingList(int areaId) async {
+    return authRepoInterface.getBuildingList(areaId);
+  }
+
+  @override
+  Future<List<SignUpSelectionModel>?> getOrganizationList(
+      int buildingId) async {
+    return authRepoInterface.getOrganizationList(buildingId);
+  }
+
+  Future<void> _updateHeaderFunctionality(AuthResponseModel authResponse,
+      {bool alreadyInApp = false}) async {
+    if (authResponse.isEmailVerified! &&
+        authResponse.isPhoneVerified! &&
+        authResponse.isPersonalInfo! &&
+        authResponse.token != null &&
+        authResponse.isExistUser == null) {
+      authRepoInterface.saveUserToken(authResponse.token ?? '',
+          alreadyInApp: alreadyInApp);
       await authRepoInterface.updateToken();
       await authRepoInterface.clearGuestId();
     }
@@ -74,8 +151,16 @@ class AuthService implements AuthServiceInterface{
   }
 
   @override
-  void saveUserNumberAndPassword({required String number, required String password, required String countryCode, required String otpPoneNumber}) {
-    authRepoInterface.saveUserNumberAndPassword(number: number, password: password, countryCode: countryCode, otpPoneNumber: otpPoneNumber);
+  void saveUserNumberAndPassword(
+      {required String number,
+      required String password,
+      required String countryCode,
+      required String otpPoneNumber}) {
+    authRepoInterface.saveUserNumberAndPassword(
+        number: number,
+        password: password,
+        countryCode: countryCode,
+        otpPoneNumber: otpPoneNumber);
   }
 
   @override
@@ -99,14 +184,22 @@ class AuthService implements AuthServiceInterface{
   }
 
   @override
-  Future<ResponseModel> loginWithSocialMedia(SocialLogInBodyModel socialLogInModel, {bool isCustomerVerificationOn = false}) async {
-    Response response = await authRepoInterface.loginWithSocialMedia(socialLogInModel);
+  Future<ResponseModel> loginWithSocialMedia(
+      SocialLogInBodyModel socialLogInModel,
+      {bool isCustomerVerificationOn = false}) async {
+    Response response =
+        await authRepoInterface.loginWithSocialMedia(socialLogInModel);
     if (response.statusCode == 200) {
-      AuthResponseModel authResponse = AuthResponseModel.fromJson(response.body);
+      AuthResponseModel authResponse =
+          AuthResponseModel.fromJson(response.body);
       await _updateHeaderFunctionality(authResponse);
-      return ResponseModel(true, authResponse.token??'', authResponseModel: authResponse);
+      return ResponseModel(true, authResponse.token ?? '',
+          authResponseModel: authResponse);
     } else {
-      return ResponseModel(false, response.statusText, code: response.body['errors'] != null ? response.body['errors'][0]['code'] : null);
+      return ResponseModel(false, response.statusText,
+          code: response.body['errors'] != null
+              ? response.body['errors'][0]['code']
+              : null);
     }
   }
 
@@ -160,7 +253,7 @@ class AuthService implements AuthServiceInterface{
 
   @override
   Future<void> saveGuestNumber(String number) async {
-     authRepoInterface.saveGuestContactNumber(number);
+    authRepoInterface.saveGuestContactNumber(number);
   }
 
   @override
@@ -172,5 +265,4 @@ class AuthService implements AuthServiceInterface{
   String getUserOtpPhoneNumber() {
     return authRepoInterface.getUserOtpPhoneNumber();
   }
-
 }

@@ -246,6 +246,15 @@ class ConfigModel {
         appleLogin!.add(SocialLogin.fromJson(v));
       });
     }
+    var data = json['partial_payment_method'];
+
+    if (data is List) {
+      partialPaymentMethod = data.isNotEmpty ? data.first.toString() : null;
+    } else if (data is String) {
+      partialPaymentMethod = data;
+    } else {
+      partialPaymentMethod = null;
+    }
     scheduleOrderSlotDuration = json['schedule_order_slot_duration'] == 0 ? 30 : json['schedule_order_slot_duration'];
     digitAfterDecimalPoint = json['digit_after_decimal_point'];
     loyaltyPointExchangeRate = json['loyalty_point_exchange_rate'];
@@ -296,7 +305,7 @@ class ConfigModel {
     digitalPaymentInfo = json['digital_payment_info'] != null ? DigitalPaymentInfo.fromJson(json['digital_payment_info']) : null;
     addFundStatus = json['add_fund_status'] == 1;
     partialPaymentStatus = json['partial_payment_status'] == 1;
-    partialPaymentMethod = json['partial_payment_method'];
+    // partialPaymentMethod = json['partial_payment_method'];
     additionalChargeStatus = json['additional_charge_status'] == 1;
     additionalChargeName = json['additional_charge_name'];
     additionCharge = json['additional_charge']?.toDouble() ?? 0;
