@@ -56,7 +56,7 @@ class SplashScreenState extends State<SplashScreen> {
         || AddressHelper.getAddressFromSharedPref()!.zoneData == null)) {
       AddressHelper.clearAddressFromSharedPref();
     }
-    if(Get.find<AuthController>().isGuestLoggedIn() || Get.find<AuthController>().isLoggedIn()) {
+    if(Get.find<AuthController>().isLoggedIn()) {
       Get.find<CartController>().getCartDataOnline();
     }
     _route();

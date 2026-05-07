@@ -115,10 +115,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> _route() async {
     if(GetPlatform.isWeb) {
       Get.find<SplashController>().initSharedData();
-      if(!Get.find<AuthController>().isLoggedIn() && !Get.find<AuthController>().isGuestLoggedIn() /*&& !ResponsiveHelper.isDesktop(Get.context!)*/) {
-        await Get.find<AuthController>().guestLogin();
-      }
-      if(Get.find<AuthController>().isLoggedIn() || Get.find<AuthController>().isGuestLoggedIn()) {
+      if(Get.find<AuthController>().isLoggedIn()) {
         Get.find<CartController>().getCartDataOnline();
       }
       Get.find<SplashController>().getConfigData(fromMainFunction: true);

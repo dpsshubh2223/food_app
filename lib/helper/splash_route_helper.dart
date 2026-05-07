@@ -35,17 +35,16 @@ double _getMinimumVersion() {
 }
 
 void _handleNavigation(NotificationBodyModel? notificationBody, DeepLinkBody? linkBody) async {
-  if (notificationBody != null && linkBody == null) {
-    _forNotificationRouteProcess(notificationBody);
-  } else if (Get.find<AuthController>().isLoggedIn()) {
-    _forLoggedInUserRouteProcess();
+  if (Get.find<AuthController>().isLoggedIn()) {
+    if (notificationBody != null && linkBody == null) {
+      _forNotificationRouteProcess(notificationBody);
+    } else {
+      _forLoggedInUserRouteProcess();
+    }
   } else if (Get.find<SplashController>().showIntro()!) {
     _newlyRegisteredRouteProcess();
-  } else if (Get.find<AuthController>().isGuestLoggedIn()) {
-    _forGuestUserRouteProcess();
   } else {
-    await Get.find<AuthController>().guestLogin();
-    _forGuestUserRouteProcess();
+    _forLoggedOutUserRouteProcess();
   }
 }
 
@@ -81,10 +80,6 @@ void _newlyRegisteredRouteProcess() {
   }
 }
 
-void _forGuestUserRouteProcess() {
-  if (AddressHelper.getAddressFromSharedPref() != null) {
-    Get.offNamed(RouteHelper.getInitialRoute(fromSplash: true));
-  } else {
-    Get.find<SplashController>().navigateToLocationScreen('splash', offNamed: true);
-  }
+void _forLoggedOutUserRouteProcess() {
+  Get.offNamed(RouteHelper.getSignInRoute(RouteHelper.splash));
 }

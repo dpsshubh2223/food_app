@@ -11,8 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../../../helper/address_helper.dart';
-
 class SignInScreen extends StatefulWidget {
   final bool exitFromApp;
   final bool backFromThis;
@@ -29,7 +27,6 @@ class SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(AddressHelper.getAddressFromSharedPref()!.zoneId);
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {

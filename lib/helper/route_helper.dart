@@ -567,6 +567,7 @@ class RouteHelper {
     }
     return AppConstants.appVersion < minimumVersion! ? const UpdateScreen(isUpdate: true)
         : MaintenanceHelper.isMaintenanceEnable() ? const UpdateScreen(isUpdate: false)
+        : !Get.find<AuthController>().isLoggedIn() ? const SignInScreen(exitFromApp: true, backFromThis: false)
         : (AddressHelper.getAddressFromSharedPref() == null && !byPuss)
         ? AccessLocationScreen(fromSignUp: false, fromHome: false, route: Get.currentRoute) : navigateTo;
   }
