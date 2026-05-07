@@ -74,9 +74,15 @@ class _CartScreenState extends State<CartScreen> {
 
   void _initialBottomSheetShowHide() {
     Future.delayed(const Duration(milliseconds: 600), () {
+      if (!mounted || key.currentState == null) {
+        return;
+      }
       key.currentState!.expand();
     }).then((_) {
       Future.delayed(const Duration(seconds: 3), () {
+        if (!mounted || key.currentState == null) {
+          return;
+        }
         key.currentState!.contract();
       });
     });
@@ -111,14 +117,17 @@ class _CartScreenState extends State<CartScreen> {
       endDrawer: const MenuDrawerWidget(), endDrawerEnableOpenDragGesture: false,
       body: GetBuilder<RestaurantController>(builder: (restaurantController) {
         return GetBuilder<CartController>(builder: (cartController) {
-
           bool isRestaurantOpen = true;
 
           if(restaurantController.restaurant != null) {
-            isRestaurantOpen = restaurantController.isRestaurantOpenNow(restaurantController.restaurant!.active!, restaurantController.restaurant!.schedules);
+            isRestaurantOpen = restaurantController.isRestaurantOpenNow(restaurantController.restaurant!.active ?? false, restaurantController.restaurant!.schedules);
           }
 
           bool suggestionEmpty = (restaurantController.suggestedItems != null && restaurantController.suggestedItems!.isEmpty);
+          String restaurantOpeningText = restaurantController.restaurant?.restaurantOpeningTime == null
+              || restaurantController.restaurant?.restaurantOpeningTime == 'closed'
+              ? 'tomorrow'.tr
+              : DateConverter.timeStringToTime(restaurantController.restaurant!.restaurantOpeningTime!);
           return (cartController.isLoading && widget.fromReorder) ? const Center(
             child: SizedBox(height: 30, width: 30, child: CircularProgressIndicator()),
           ) : cartController.cartList.isNotEmpty ? Column(
@@ -191,7 +200,7 @@ class _CartScreenState extends State<CartScreen> {
                                                         TextSpan(text: 'currently_the_restaurant_is_unavailable_the_restaurant_will_be_available_at'.tr, style: robotoRegular.copyWith(color: Theme.of(context).hintColor)),
                                                         const TextSpan(text: ' '),
                                                         TextSpan(
-                                                          text: restaurantController.restaurant!.restaurantOpeningTime == 'closed' ? 'tomorrow'.tr : DateConverter.timeStringToTime(restaurantController.restaurant!.restaurantOpeningTime!),
+                                                          text: restaurantOpeningText,
                                                           style: robotoMedium.copyWith(color: Theme.of(context).primaryColor),
                                                         ),
                                                       ]),
@@ -214,7 +223,7 @@ class _CartScreenState extends State<CartScreen> {
                                                         TextSpan(text: 'currently_the_restaurant_is_unavailable_the_restaurant_will_be_available_at'.tr, style: robotoRegular.copyWith(color: Theme.of(context).hintColor)),
                                                         const TextSpan(text: ' '),
                                                         TextSpan(
-                                                          text: restaurantController.restaurant!.restaurantOpeningTime == 'closed' ? 'tomorrow'.tr : DateConverter.timeStringToTime(restaurantController.restaurant!.restaurantOpeningTime!),
+                                                          text: restaurantOpeningText,
                                                           style: robotoMedium.copyWith(color: Theme.of(context).primaryColor),
                                                         ),
                                                       ]),

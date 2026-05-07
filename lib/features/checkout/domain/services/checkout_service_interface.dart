@@ -1,5 +1,6 @@
 import 'package:stackfood_multivendor/common/models/restaurant_model.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/offline_method_model.dart';
+import 'package:stackfood_multivendor/features/checkout/domain/models/offer_model.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/place_order_body_model.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/timeslote_model.dart';
 import 'package:flutter/material.dart';
@@ -10,10 +11,14 @@ abstract class CheckoutServiceInterface {
   Future<int?> getDmTipMostTapped();
   Future<List<OfflineMethodModel>> getOfflineMethodList();
   Future<double> getExtraCharge(double? distance);
-  List<TextEditingController> generateTextControllerList(List<MethodInformations>? methodInformation);
-  List<FocusNode> generateFocusList(List<MethodInformations>? methodInformation);
-  Future<List<TimeSlotModel>?> initializeTimeSlot(Restaurant restaurant, int? scheduleOrderSlotDuration);
-  List<TimeSlotModel>? validateTimeSlot(List<TimeSlotModel> slots, DateTime date);
+  List<TextEditingController> generateTextControllerList(
+      List<MethodInformations>? methodInformation);
+  List<FocusNode> generateFocusList(
+      List<MethodInformations>? methodInformation);
+  Future<List<TimeSlotModel>?> initializeTimeSlot(
+      Restaurant restaurant, int? scheduleOrderSlotDuration);
+  List<TimeSlotModel>? validateTimeSlot(
+      List<TimeSlotModel> slots, DateTime date);
   List<int>? validateSlotIndexes(List<TimeSlotModel> slots, DateTime date);
   Future<bool> saveOfflineInfo(String data);
   int selectInstruction(int index, int selected);
@@ -22,10 +27,13 @@ abstract class CheckoutServiceInterface {
   String setPreferenceTimeForView(String time, bool instanceOrder);
   int selectTimeSlot(bool instanceOrder);
   double updateTips(int index, int selectedTips);
-  Future<double?> getDistanceInKM(LatLng originLatLng, LatLng destinationLatLng, {bool isDuration = false});
+  Future<double?> getDistanceInKM(LatLng originLatLng, LatLng destinationLatLng,
+      {bool isDuration = false});
   Future<bool> updateOfflineInfo(String data);
   Future<bool> checkRestaurantValidation({required Map<String, dynamic> data});
   Future<Response> getOrderTax(PlaceOrderBodyModel placeOrderBody);
+  Future<List<OfferModel>> getOfferList();
+  Future<Response> saveOfferClick(Map<String, dynamic> data);
   void saveDmTipIndex(String i);
   String getDmTipIndex();
 }

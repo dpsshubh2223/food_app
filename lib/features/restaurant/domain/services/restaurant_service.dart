@@ -166,7 +166,7 @@ class RestaurantService implements RestaurantServiceInterface {
 
   @override
   bool isRestaurantClosed(DateTime dateTime, bool active, List<Schedules>? schedules) {
-    if(!active) {
+    if(!active || schedules == null || schedules.isEmpty) {
       return true;
     }
     DateTime date = dateTime;
@@ -174,7 +174,7 @@ class RestaurantService implements RestaurantServiceInterface {
     if(weekday == 7) {
       weekday = 0;
     }
-    for(int index=0; index<schedules!.length; index++) {
+    for(int index=0; index<schedules.length; index++) {
       if(weekday == schedules[index].day) {
         return false;
       }

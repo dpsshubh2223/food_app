@@ -63,8 +63,10 @@ class ApiClient extends GetxService {
       if(kDebugMode) {
         debugPrint('====> API Call: $uri\nHeader: $_mainHeaders');
       }
-      print(headers);
-      print(_mainHeaders);
+      // print(headers);
+      // print(_mainHeaders);
+      print("printFullResponse");
+      printFullResponse(_mainHeaders);
       http.Response response = await http.get(
         Uri.parse(appBaseUrl+uri),
         headers: headers ?? _mainHeaders,
@@ -77,7 +79,16 @@ class ApiClient extends GetxService {
     //   return  Response(statusCode: 1, statusText: noInternetMessage);
     // }
   }
-
+  void printFullResponse(dynamic data) {
+    final responseString = data is String ? data : data.toString();
+    const chunkSize = 800; // safe chunk size for console
+    for (var i = 0; i < responseString.length; i += chunkSize) {
+      print(responseString.substring(
+        i,
+        i + chunkSize > responseString.length ? responseString.length : i + chunkSize,
+      ));
+    }
+  }
   Future<Response> postData(String uri, dynamic body, {Map<String, String>? headers, bool handleError = true}) async {
     try {
       if(kDebugMode) {

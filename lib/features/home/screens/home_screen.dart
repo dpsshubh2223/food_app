@@ -63,6 +63,9 @@ class HomeScreen extends StatefulWidget {
     Get.find<CuisineController>().getCuisineList();
     Get.find<AdvertisementController>().getAdvertisementList();
     Get.find<DineInController>().getDineInRestaurantList(1, reload);
+    if(Get.find<AuthController>().isLoggedIn()) {
+      await Get.find<ProfileController>().getUserInfo();
+    }
     if(Get.find<SplashController>().configModel!.popularRestaurant == 1) {
       Get.find<RestaurantController>().getPopularRestaurantList(reload, 'all', false);
     }
@@ -78,7 +81,6 @@ class HomeScreen extends StatefulWidget {
     }
     Get.find<RestaurantController>().getRestaurantList(1, reload);
     if(Get.find<AuthController>().isLoggedIn()) {
-      await Get.find<ProfileController>().getUserInfo();
       Get.find<RestaurantController>().getRecentlyViewedRestaurantList(reload, 'all', false);
       Get.find<RestaurantController>().getOrderAgainRestaurantList(reload);
       Get.find<NotificationController>().getNotificationList(reload);

@@ -43,7 +43,9 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
   void initState() {
     super.initState();
 
-    _initDataCall();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initDataCall();
+    });
   }
 
   @override
@@ -57,13 +59,19 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     if(Get.find<RestaurantController>().isSearching) {
       Get.find<RestaurantController>().changeSearchStatus(isUpdate: false);
     }
-    await Get.find<RestaurantController>().getRestaurantDetails(Restaurant(id: widget.restaurant!.id), slug: widget.slug);
+    Restaurant? restaurant = await Get.find<RestaurantController>().getRestaurantDetails(
+      widget.restaurant?.name != null ? widget.restaurant! : Restaurant(id: widget.restaurant!.id),
+      slug: widget.slug,
+    );
+    int? restaurantId = widget.restaurant!.id ?? restaurant?.id;
     if(Get.find<CategoryController>().categoryList == null) {
       Get.find<CategoryController>().getCategoryList(true);
     }
-    Get.find<CouponController>().getRestaurantCouponList(restaurantId: widget.restaurant!.id ?? Get.find<RestaurantController>().restaurant!.id!);
-    Get.find<RestaurantController>().getRestaurantRecommendedItemList(widget.restaurant!.id ?? Get.find<RestaurantController>().restaurant!.id!, false);
-    Get.find<RestaurantController>().getRestaurantProductList(widget.restaurant!.id ?? Get.find<RestaurantController>().restaurant!.id!, 1, 'all', false);
+    if (restaurantId != null) {
+      Get.find<CouponController>().getRestaurantCouponList(restaurantId: restaurantId);
+      Get.find<RestaurantController>().getRestaurantRecommendedItemList(restaurantId, false);
+      Get.find<RestaurantController>().getRestaurantProductList(restaurantId, 1, 'all', false);
+    }
   }
 
   @override

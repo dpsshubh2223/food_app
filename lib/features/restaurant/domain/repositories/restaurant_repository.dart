@@ -5,10 +5,11 @@ import 'package:stackfood_multivendor/common/enums/data_source_enum.dart';
 import 'package:stackfood_multivendor/common/models/product_model.dart';
 import 'package:stackfood_multivendor/common/models/restaurant_model.dart';
 import 'package:stackfood_multivendor/api/api_client.dart';
+import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/features/restaurant/domain/models/recommended_product_model.dart';
 import 'package:stackfood_multivendor/features/restaurant/domain/repositories/restaurant_repository_interface.dart';
 import 'package:stackfood_multivendor/util/app_constants.dart';
-import 'package:get/get_connect.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RestaurantRepository implements RestaurantRepositoryInterface {
@@ -91,17 +92,27 @@ class RestaurantRepository implements RestaurantRepositoryInterface {
     if (response.statusCode == 200) {
       restaurant = Restaurant.fromJson(response.body);
     }
+    print(response.body);
     return restaurant;
   }
 
   @override
   Future<RestaurantModel?> getList({int? offset, String? filterBy, int? topRated, int? discount, int? veg, int? nonVeg, bool fromMap = false, DataSourceEnum? source}) async {
     RestaurantModel? restaurantModel;
-    String cacheId = AppConstants.restaurantUri;
+    String uri = _getRestaurantListUri(
+      offset: offset,
+      limit: fromMap ? 20 : 12,
+      filterBy: filterBy,
+      topRated: topRated,
+      discount: discount,
+      veg: veg,
+      nonVeg: nonVeg,
+    );
+    String cacheId = uri;
 
     switch(source!){
       case DataSourceEnum.client:
-        Response response = await apiClient.getData('${AppConstants.restaurantUri}/all?offset=$offset&limit=${fromMap ? 20 : 12}&filter_data=$filterBy&top_rated=$topRated&discount=$discount&veg=$veg&non_veg=$nonVeg');
+        Response response = await apiClient.getData(uri);
         if(response.statusCode == 200){
           restaurantModel = RestaurantModel.fromJson(response.body);
           LocalClient.organize(DataSourceEnum.client, cacheId, jsonEncode(response.body), apiClient.getHeader());
@@ -113,6 +124,44 @@ class RestaurantRepository implements RestaurantRepositoryInterface {
         }
     }
     return restaurantModel;
+  }
+
+  String _getRestaurantListUri({
+    required int? offset,
+    required int limit,
+    required String? filterBy,
+    required int? topRated,
+    required int? discount,
+    required int? veg,
+    required int? nonVeg,
+  }) {
+    final Map<String, String> queryParameters = {
+      'offset': offset.toString(),
+      'limit': limit.toString(),
+      'filter_data': filterBy.toString(),
+      'top_rated': topRated.toString(),
+      'discount': discount.toString(),
+      'veg': veg.toString(),
+      'non_veg': nonVeg.toString(),
+    };
+
+    if (Get.isRegistered<ProfileController>()) {
+      final userInfo = Get.find<ProfileController>().userInfoModel;
+      if (userInfo?.areaId != null) {
+        queryParameters['area_id'] = userInfo!.areaId.toString();
+      }
+      if (userInfo?.buildingId != null) {
+        queryParameters['building_id'] = userInfo!.buildingId.toString();
+      }
+      if (userInfo?.companyId != null) {
+        queryParameters['organization_id'] = userInfo!.companyId.toString();
+      }
+    }
+
+    return Uri(
+      path: '${AppConstants.restaurantUri}/all',
+      queryParameters: queryParameters,
+    ).toString();
   }
 
   @override

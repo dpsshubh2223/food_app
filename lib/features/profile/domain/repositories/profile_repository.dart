@@ -16,6 +16,7 @@ class ProfileRepository implements ProfileRepositoryInterface {
   Future<ResponseModel> updateProfile(UpdateUserModel userInfoModel, XFile? data, String tokeni) async {
     ResponseModel responseModel;
     Response response = await apiClient.postMultipartData(AppConstants.updateProfileUri, userInfoModel.toJson(), [MultipartBody('image', data)], [], handleError: false);
+    print(response.body);
     if (response.statusCode == 200) {
       responseModel = ResponseModel(true, response.body['message'],
         updateProfileResponseModel: response.body['verification_on'] != null ? UpdateProfileResponseModel.fromJson(response.body) : null,

@@ -39,7 +39,10 @@ class BottomCartWidget extends StatelessWidget {
               CustomButtonWidget(buttonText: 'view_cart'.tr, width: 130, height: 45, onPressed: () async {
                 await Get.toNamed(RouteHelper.getCartRoute(fromDineIn: fromDineIn));
                 Get.find<RestaurantController>().makeEmptyRestaurant();
+
                 if(restaurantId != null) {
+                  print(restaurantId);
+
                   Get.find<RestaurantController>().getRestaurantDetails(Restaurant(id: restaurantId));
                 }
               })

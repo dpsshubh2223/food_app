@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:stackfood_multivendor/features/checkout/controllers/checkout_controller.dart';
+import 'package:stackfood_multivendor/features/checkout/widgets/order_offer_list_widget.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/payment_failed_dialog.dart';
 import 'package:stackfood_multivendor/features/order/controllers/order_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
@@ -24,6 +26,7 @@ class OrderSuccessfulScreen extends StatefulWidget {
   final double? totalAmount;
   final String? contactPersonNumber;
   final bool isDeliveryOrder;
+
   const OrderSuccessfulScreen({super.key, required this.orderID, required this.status, required this.totalAmount, this.contactPersonNumber, this.isDeliveryOrder = false});
 
   @override
@@ -39,15 +42,19 @@ class _OrderSuccessfulScreenState extends State<OrderSuccessfulScreen> {
     super.initState();
 
     orderId = widget.orderID!;
-    if(widget.orderID != null) {
-      if(widget.orderID!.contains('?')){
+    if (widget.orderID != null) {
+      if (widget.orderID!.contains('?')) {
         var parts = widget.orderID!.split('?');
-        String id = parts[0].trim();                 // prefix: "date"
+        String id = parts[0].trim(); // prefix: "date"
         orderId = id;
       }
     }
     Get.find<OrderController>().trackOrder(orderId.toString(), null, false, contactNumber: widget.contactPersonNumber);
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Get.find<CheckoutController>().getOfferList();
+      }
+    });
   }
 
   @override
@@ -55,83 +62,102 @@ class _OrderSuccessfulScreenState extends State<OrderSuccessfulScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).cardColor,
       appBar: ResponsiveHelper.isDesktop(context) ? const WebMenuBar() : null,
-      endDrawer: const MenuDrawerWidget(), endDrawerEnableOpenDragGesture: false,
+      endDrawer: const MenuDrawerWidget(),
+      endDrawerEnableOpenDragGesture: false,
       body: GetBuilder<OrderController>(builder: (orderController) {
         double total = 0;
         bool success = true;
         double? maximumCodOrderAmount;
-        if(orderController.trackModel != null) {
+        if (orderController.trackModel != null) {
           ZoneData zoneData = AddressHelper.getAddressFromSharedPref()!.zoneData!.firstWhere((data) => data.id == AddressHelper.getAddressFromSharedPref()!.zoneId);
           maximumCodOrderAmount = zoneData.maxCodOrderAmount;
           total = ((orderController.trackModel!.orderAmount! / 100) * Get.find<SplashController>().configModel!.loyaltyPointItemPurchasePoint!);
-          success = orderController.trackModel!.paymentStatus == 'paid' || orderController.trackModel!.paymentMethod == 'cash_on_delivery' || orderController.trackModel!.paymentMethod == 'partial_payment';
+          success =
+              orderController.trackModel!.paymentStatus == 'paid' || orderController.trackModel!.paymentMethod == 'cash_on_delivery' || orderController.trackModel!.paymentMethod == 'partial_payment';
 
           if (!success && !Get.isDialogOpen! && orderController.trackModel!.orderStatus != 'canceled' && Get.currentRoute.startsWith(RouteHelper.orderSuccess)) {
             Future.delayed(const Duration(seconds: 1), () {
-              Get.dialog(PaymentFailedDialog(orderID: orderId, orderAmount: total, maxCodOrderAmount: maximumCodOrderAmount, contactPersonNumber: widget.contactPersonNumber), barrierDismissible: false);
+              Get.dialog(PaymentFailedDialog(orderID: orderId, orderAmount: total, maxCodOrderAmount: maximumCodOrderAmount, contactPersonNumber: widget.contactPersonNumber),
+                  barrierDismissible: false);
             });
           }
         }
 
-        return orderController.trackModel != null ? Center(child: SingleChildScrollView(
-          controller: scrollController,
-          child: FooterViewWidget(
-            child: SizedBox(width: Dimensions.webMaxWidth, child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-
-              Image.asset(success ? Images.checked : Images.warning, width: 100, height: 100),
-              const SizedBox(height: Dimensions.paddingSizeLarge),
-
-              Text(
-                success ? 'you_placed_the_order_successfully'.tr : 'your_order_is_failed_to_place'.tr,
-                style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge),
-              ),
-              const SizedBox(height: Dimensions.paddingSizeSmall),
-
-              Get.find<AuthController>().isGuestLoggedIn() ? Text(
-                '${'order_id'.tr}: $orderId',
-                style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).primaryColor),
-              ) : const SizedBox(),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
-                child: Text(
-                  success ? widget.isDeliveryOrder ? 'your_order_is_placed_successfully'.tr : 'your_order_is_placed_successfully_dine_in_and_takeaway'.tr : 'your_order_is_failed_to_place_because'.tr,
-                  style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
-                  textAlign: TextAlign.center,
+        return orderController.trackModel != null
+            ? Center(
+                child: SingleChildScrollView(
+                controller: scrollController,
+                child: FooterViewWidget(
+                  child: SizedBox(
+                      width: Dimensions.webMaxWidth,
+                      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        Image.asset(success ? Images.checked : Images.warning, width: 100, height: 100),
+                        const SizedBox(height: Dimensions.paddingSizeLarge),
+                        Text(
+                          success ? 'you_placed_the_order_successfully'.tr : 'your_order_is_failed_to_place'.tr,
+                          style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge),
+                        ),
+                        const SizedBox(height: Dimensions.paddingSizeSmall),
+                        Get.find<AuthController>().isGuestLoggedIn()
+                            ? Text(
+                                '${'order_id'.tr}: $orderId',
+                                style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).primaryColor),
+                              )
+                            : const SizedBox(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
+                          child: Text(
+                            success
+                                ? widget.isDeliveryOrder
+                                    ? 'your_order_is_placed_successfully'.tr
+                                    : 'your_order_is_placed_successfully_dine_in_and_takeaway'.tr
+                                : 'your_order_is_failed_to_place_because'.tr,
+                            style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        Get.find<AuthController>().isLoggedIn() &&
+                                ResponsiveHelper.isDesktop(context) &&
+                                (success && Get.find<SplashController>().configModel!.loyaltyPointStatus == 1 && total.floor() > 0)
+                            ? Column(children: [
+                                Image.asset(Get.find<ThemeController>().darkTheme ? Images.giftBox1 : Images.giftBox, width: 150, height: 150),
+                                Text('congratulations'.tr, style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
+                                const SizedBox(height: Dimensions.paddingSizeSmall),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+                                  child: Text(
+                                    '${'you_have_earned'.tr} ${total.floor().toString()} ${'points_it_will_add_to'.tr}',
+                                    style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).disabledColor),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ])
+                            : const SizedBox.shrink(),
+                        success
+                            ? GetBuilder<CheckoutController>(builder: (checkoutController) {
+                                return OrderOfferListWidget(checkoutController: checkoutController, orderId: orderId.toString());
+                              })
+                            : const SizedBox.shrink(),
+                        GetBuilder<CheckoutController>(builder: (checkoutController) {
+                          bool hasOffers = checkoutController.offerList?.isNotEmpty ?? false;
+                          return hasOffers
+                              ? const SizedBox.shrink()
+                              : Column(children: [
+                                  const SizedBox(height: 30),
+                                  Padding(
+                                    padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                                    child: CustomButtonWidget(
+                                      width: ResponsiveHelper.isDesktop(context) ? 300 : double.infinity,
+                                      buttonText: 'back_to_home'.tr,
+                                      onPressed: () => Get.offAllNamed(RouteHelper.getInitialRoute()),
+                                    ),
+                                  ),
+                                ]);
+                        }),
+                      ])),
                 ),
-              ),
-
-              Get.find<AuthController>().isLoggedIn() && ResponsiveHelper.isDesktop(context) && (success && Get.find<SplashController>().configModel!.loyaltyPointStatus == 1 && total.floor() > 0 )  ? Column(children: [
-
-                Image.asset(Get.find<ThemeController>().darkTheme ? Images.giftBox1 : Images.giftBox, width: 150, height: 150),
-
-                Text('congratulations'.tr , style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
-                const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
-                  child: Text(
-                    '${'you_have_earned'.tr} ${total.floor().toString()} ${'points_it_will_add_to'.tr}',
-                    style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge,color: Theme.of(context).disabledColor),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-
-              ]) : const SizedBox.shrink() ,
-              const SizedBox(height: 30),
-
-              Padding(
-                padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                child: CustomButtonWidget(
-                  width: ResponsiveHelper.isDesktop(context) ? 300 : double.infinity,
-                  buttonText: 'back_to_home'.tr,
-                  onPressed: () => Get.offAllNamed(RouteHelper.getInitialRoute()),
-                ),
-              ),
-
-            ])),
-          ),
-        )) : const Center(child: CircularProgressIndicator());
+              ))
+            : const Center(child: CircularProgressIndicator());
       }),
     );
   }

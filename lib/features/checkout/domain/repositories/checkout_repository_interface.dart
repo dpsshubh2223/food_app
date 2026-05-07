@@ -1,4 +1,5 @@
 import 'package:stackfood_multivendor/features/checkout/domain/models/offline_method_model.dart';
+import 'package:stackfood_multivendor/features/checkout/domain/models/offer_model.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/place_order_body_model.dart';
 import 'package:stackfood_multivendor/interface/repository_interface.dart';
 import 'package:get/get_connect/http/src/response/response.dart';
@@ -11,10 +12,13 @@ abstract class CheckoutRepositoryInterface extends RepositoryInterface {
   Future<bool> saveOfflineInfo(String data);
   Future<Response> placeOrder(PlaceOrderBodyModel orderBody);
   Future<Response> sendNotificationRequest(String orderId, String? guestId);
-  Future<Response> getDistanceInMeter(LatLng originLatLng, LatLng destinationLatLng);
+  Future<Response> getDistanceInMeter(
+      LatLng originLatLng, LatLng destinationLatLng);
   Future<bool> updateOfflineInfo(String data);
   Future<bool> checkRestaurantValidation({required Map<String, dynamic> data});
   Future<Response> getOrderTax(PlaceOrderBodyModel placeOrderBody);
+  Future<List<OfferModel>> getOfferList();
+  Future<Response> saveOfferClick(Map<String, dynamic> data);
   Future<bool> saveDmTipIndex(String index);
   String getDmTipIndex();
 }
