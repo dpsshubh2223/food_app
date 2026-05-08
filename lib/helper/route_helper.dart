@@ -6,10 +6,12 @@ import 'package:stackfood_multivendor/features/auth/screens/new_user_setup_scree
 import 'package:stackfood_multivendor/features/business/screens/subscription_payment_screen.dart';
 import 'package:stackfood_multivendor/features/business/screens/subscription_success_or_failed_screen.dart';
 import 'package:stackfood_multivendor/features/cart/screens/cart_screen.dart';
+import 'package:stackfood_multivendor/features/checkout/domain/models/offer_model.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/place_order_body_model.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/pricing_view_model.dart';
 import 'package:stackfood_multivendor/features/checkout/screens/checkout_screen.dart';
 import 'package:stackfood_multivendor/features/checkout/screens/offline_payment_screen.dart';
+import 'package:stackfood_multivendor/features/checkout/screens/offer_details_screen.dart';
 import 'package:stackfood_multivendor/features/checkout/screens/order_successful_screen.dart';
 import 'package:stackfood_multivendor/features/checkout/screens/payment_screen.dart';
 import 'package:stackfood_multivendor/features/checkout/screens/payment_webview_screen.dart';
@@ -109,6 +111,7 @@ class RouteHelper {
   static const String orderSuccess = '/order-successful';
   static const String payment = '/payment';
   static const String checkout = '/checkout';
+  static const String offerDetails = '/offer-details';
   static const String orderTracking = '/track-order';
   static const String basicCampaign = '/basic-campaign';
   static const String html = '/html-screen';
@@ -219,6 +222,7 @@ class RouteHelper {
     return '$payment?order=$data&payment-method=$paymentMethod&add-fund-url=$addFundUrl&subscription-url=$subscriptionUrl&guest-id=$guestId&number=$contactNumber&restaurant_id=$restaurantId&package_id=$packageId';
   }
   static String getCheckoutRoute(String page, {bool fromDineIn = false}) => '$checkout?page=$page&from_dine_in=$fromDineIn';
+  static String getOfferDetailsRoute() => offerDetails;
   static String getOrderTrackingRoute(int? id, String? contactNumber) => '$orderTracking?id=$id&contact_number=$contactNumber';
   static String getBasicCampaignRoute(BasicCampaignModel basicCampaignModel) {
     String data = base64Encode(utf8.encode(jsonEncode(basicCampaignModel.toJson())));
@@ -442,6 +446,14 @@ class RouteHelper {
       return getRoute(checkoutScreen ?? (!fromCart ? const NotFoundWidget() : CheckoutScreen(
         cartList: null, fromCart: Get.parameters['page'] == 'cart', fromDineInPage: Get.parameters['from_dine_in'] == 'true',
       )));
+    }),
+    GetPage(name: offerDetails, page: () {
+      Map? data = Get.arguments is Map ? Get.arguments : null;
+      OfferModel? offer = data?['offer'] is OfferModel ? data!['offer'] : null;
+      String? orderId = data?['order_id']?.toString();
+      return getRoute(offer != null && orderId != null
+          ? OfferDetailsScreen(offer: offer, orderId: orderId)
+          : const NotFoundWidget());
     }),
     GetPage(name: orderTracking, page: () => getRoute(OrderTrackingScreen(orderID: Get.parameters['id'], contactNumber: Get.parameters['contact_number']))),
     GetPage(name: basicCampaign, page: () {

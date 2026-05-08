@@ -3,6 +3,7 @@ class OfferModel {
   String? title;
   String? bannerImage;
   String? bannerImageFullUrl;
+  String? websiteUrl;
   String? startDate;
   String? endDate;
   String? termsConditions;
@@ -23,6 +24,7 @@ class OfferModel {
     this.title,
     this.bannerImage,
     this.bannerImageFullUrl,
+    this.websiteUrl,
     this.startDate,
     this.endDate,
     this.termsConditions,
@@ -44,6 +46,7 @@ class OfferModel {
     title = json['title'];
     bannerImage = json['banner_image'];
     bannerImageFullUrl = json['banner_image_full_url'];
+    websiteUrl = json['website_url'];
     startDate = json['start_date'];
     endDate = json['end_date'];
     termsConditions = json['terms_conditions'];
@@ -67,3 +70,9 @@ class OfferModel {
     return double.tryParse(value.toString());
   }
 }
+
+
+
+
+
+

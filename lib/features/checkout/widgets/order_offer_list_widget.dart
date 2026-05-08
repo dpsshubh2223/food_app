@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_image_widget.dart';
 import 'package:stackfood_multivendor/features/checkout/controllers/checkout_controller.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/offer_model.dart';
-import 'package:stackfood_multivendor/features/home/screens/home_screen.dart';
 import 'package:stackfood_multivendor/helper/date_converter.dart';
 import 'package:stackfood_multivendor/helper/price_converter.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
@@ -116,16 +115,11 @@ class OrderOfferListWidget extends StatelessWidget {
                         : context.width * 0.82,
                 compact: compact,
                 isLoading: checkoutController.selectedOfferId == offer.id,
-                onTap: () async {
-                  if (offer.id == null) {
-                    return;
-                  }
-                  bool saved = await checkoutController.saveOfferClick(
-                      offerId: offer.id!, orderId: orderId);
-                  if (saved) {
-                    await HomeScreen.loadData(true);
-                    Get.offAllNamed(RouteHelper.getInitialRoute());
-                  }
+                onTap: () {
+                  Get.toNamed(RouteHelper.getOfferDetailsRoute(), arguments: {
+                    'offer': offer,
+                    'order_id': orderId,
+                  });
                 },
               );
             },
@@ -321,7 +315,7 @@ class _OfferCard extends StatelessWidget {
                                       const Icon(Icons.bookmark_add_rounded,
                                           color: Colors.white, size: 18),
                                       const SizedBox(width: 6),
-                                      Text('Save offer',
+                                      Text('View offer',
                                           style: robotoBold.copyWith(
                                               color: Colors.white,
                                               fontSize:

@@ -66,8 +66,7 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
       }
       if (!GetPlatform.isWeb) {
         FirebaseMessaging.instance.subscribeToTopic(AppConstants.topic);
-        FirebaseMessaging.instance.subscribeToTopic(
-            'zone_${AddressHelper.getAddressFromSharedPref()!.zoneId}_customer');
+        _subscribeToSavedAddressZoneTopics();
         FirebaseMessaging.instance
             .subscribeToTopic(AppConstants.maintenanceModeTopic);
       }
@@ -308,8 +307,7 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
   Future<bool> clearSharedData({bool removeToken = true}) async {
     if (!GetPlatform.isWeb) {
       FirebaseMessaging.instance.unsubscribeFromTopic(AppConstants.topic);
-      FirebaseMessaging.instance.unsubscribeFromTopic(
-          'zone_${AddressHelper.getAddressFromSharedPref()!.zoneId}_customer');
+      _unsubscribeFromSavedAddressZoneTopics();
       if (removeToken) {
         await apiClient.postData(AppConstants.tokenUri,
             {"_method": "put", "cm_firebase_token": '@'});
@@ -348,8 +346,7 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
         await updateToken(notificationDeviceToken: '@');
         FirebaseMessaging.instance.unsubscribeFromTopic(AppConstants.topic);
         if (isLoggedIn()) {
-          FirebaseMessaging.instance.unsubscribeFromTopic(
-              'zone_${AddressHelper.getAddressFromSharedPref()!.zoneId}_customer');
+          _unsubscribeFromSavedAddressZoneTopics();
         }
       }
     }
@@ -369,6 +366,39 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
   @override
   String getGuestContactNumber() {
     return sharedPreferences.getString(AppConstants.guestNumber) ?? "";
+  }
+
+  void _subscribeToSavedAddressZoneTopics() {
+    AddressModel? address = AddressHelper.getAddressFromSharedPref();
+    if (address == null) {
+      return;
+    }
+
+    List<int> zoneIds = address.zoneIds ?? [];
+    if (zoneIds.isEmpty && address.zoneId != null) {
+      zoneIds = [address.zoneId!];
+    }
+
+    for (int zoneId in zoneIds) {
+      FirebaseMessaging.instance.subscribeToTopic('zone_${zoneId}_customer');
+    }
+  }
+
+  void _unsubscribeFromSavedAddressZoneTopics() {
+    AddressModel? address = AddressHelper.getAddressFromSharedPref();
+    if (address == null) {
+      return;
+    }
+
+    List<int> zoneIds = address.zoneIds ?? [];
+    if (zoneIds.isEmpty && address.zoneId != null) {
+      zoneIds = [address.zoneId!];
+    }
+
+    for (int zoneId in zoneIds) {
+      FirebaseMessaging.instance
+          .unsubscribeFromTopic('zone_${zoneId}_customer');
+    }
   }
 
   @override

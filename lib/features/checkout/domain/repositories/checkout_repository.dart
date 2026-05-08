@@ -109,6 +109,7 @@ class CheckoutRepository implements CheckoutRepositoryInterface {
   Future<List<OfferModel>> getOfferList() async {
     List<OfferModel> offerList = [];
     Response response = await apiClient.getData(AppConstants.offerListUri);
+    print(response.body);
     if (response.statusCode == 200 && response.body != null) {
       dynamic data = response.body is Map && response.body['data'] != null
           ? response.body['data']

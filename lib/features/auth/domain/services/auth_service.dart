@@ -138,7 +138,7 @@ class AuthService implements AuthServiceInterface {
         authResponse.isPersonalInfo! &&
         authResponse.token != null &&
         authResponse.isExistUser == null) {
-      authRepoInterface.saveUserToken(authResponse.token ?? '',
+      await authRepoInterface.saveUserToken(authResponse.token ?? '',
           alreadyInApp: alreadyInApp);
       await authRepoInterface.updateToken();
       await authRepoInterface.clearGuestId();
