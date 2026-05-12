@@ -378,12 +378,18 @@ class SignUpWidgetState extends State<SignUpWidget> {
                                 !isDesktop)
                             ? Dimensions.paddingSizeLarge
                             : 0),
-                    _buildReadOnlySelectionField(
+                    _buildSelectionField(
                       label: 'zone'.tr,
-                      value: authController.selectedZone?.name ??
-                          (authController.isLocationLoading
-                              ? 'Loading...'
-                              : ''),
+                      hint: 'select_zone'.tr,
+                      value: authController.selectedZone,
+                      items: authController.zoneList,
+                      isLoading: authController.isLocationLoading &&
+                          authController.zoneList == null,
+                      onChanged: (value) {
+                        if (value != null) {
+                          authController.selectZone(value);
+                        }
+                      },
                     ),
                     SizedBox(height: Dimensions.paddingSizeLarge),
                     Row(children: [
@@ -630,31 +636,6 @@ class SignUpWidgetState extends State<SignUpWidget> {
     }
   }
 
-  Widget _buildReadOnlySelectionField({
-    required String label,
-    required String value,
-  }) {
-    return TextFormField(
-      key: ValueKey(value),
-      initialValue: value,
-      readOnly: true,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(Dimensions.radiusDefault)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-          borderSide:
-              BorderSide(color: Theme.of(context).disabledColor, width: 0.3),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-            horizontal: Dimensions.paddingSizeDefault,
-            vertical: Dimensions.paddingSizeSmall),
-      ),
-      style: robotoRegular,
-    );
-  }
-
   Widget _buildSelectionField({
     required String label,
     required String hint,
@@ -663,8 +644,9 @@ class SignUpWidgetState extends State<SignUpWidget> {
     required Function(SignUpSelectionModel?) onChanged,
     bool isLoading = false,
   }) {
+    SignUpSelectionModel? selectedValue = _dropdownValue(value, items);
     return DropdownButtonFormField<SignUpSelectionModel>(
-      value: value,
+      value: selectedValue,
       isExpanded: true,
       decoration: InputDecoration(
         labelText: label,
@@ -691,6 +673,21 @@ class SignUpWidgetState extends State<SignUpWidget> {
       validator: (selectedValue) =>
           selectedValue == null ? '$hint required' : null,
     );
+  }
+
+  SignUpSelectionModel? _dropdownValue(
+    SignUpSelectionModel? value,
+    List<SignUpSelectionModel>? items,
+  ) {
+    if (value == null || items == null) {
+      return null;
+    }
+    for (final SignUpSelectionModel item in items) {
+      if (item.id == value.id) {
+        return item;
+      }
+    }
+    return null;
   }
 
   Future<SignUpBodyModel?> _prepareSignUpBody(String countryCode) async {

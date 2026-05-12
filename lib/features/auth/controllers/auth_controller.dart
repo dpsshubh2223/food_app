@@ -186,9 +186,7 @@ class AuthController extends GetxController implements GetxService {
 
   Future<void> getAreaListFromSelectedAddressZone() async {
     int? zoneId = AddressHelper.getAddressFromSharedPref()?.zoneId;
-    _selectedZone = zoneId != null
-        ? SignUpSelectionModel(id: zoneId, name: 'Zone $zoneId')
-        : null;
+    _selectedZone = null;
     _selectedArea = null;
     _selectedBuilding = null;
     _selectedOrganization = null;
@@ -196,14 +194,16 @@ class AuthController extends GetxController implements GetxService {
     _buildingList = null;
     _organizationList = null;
 
+    _isLocationLoading = true;
+    update();
+    _zoneList = await authServiceInterface.getZoneList();
+
     if (zoneId == null) {
+      _isLocationLoading = false;
       update();
       return;
     }
 
-    _isLocationLoading = true;
-    update();
-    _zoneList ??= await authServiceInterface.getZoneList();
     if (_zoneList != null) {
       _selectedZone = _zoneList!.firstWhere(
         (zone) => zone.id == zoneId,

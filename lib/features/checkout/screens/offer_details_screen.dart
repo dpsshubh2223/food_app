@@ -32,39 +32,12 @@ class OfferDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: CustomAppBarWidget(title: 'Offer Details'),
-      bottomNavigationBar:
-          GetBuilder<CheckoutController>(builder: (checkoutController) {
-        bool isLoading = checkoutController.selectedOfferId == offer.id;
-        return SafeArea(
-          child: Container(
-            padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 16,
-                  offset: const Offset(0, -4),
-                ),
-              ],
-            ),
-            child: CustomButtonWidget(
-              buttonText: 'Claim Offer',
-              icon: Icons.open_in_browser_rounded,
-              isLoading: isLoading,
-              onPressed: offer.id == null
-                  ? null
-                  : () => _claimOffer(checkoutController),
-            ),
-          ),
-        );
-      }),
       body: SingleChildScrollView(
         padding: EdgeInsets.only(
           left: isDesktop ? 0 : Dimensions.paddingSizeDefault,
           right: isDesktop ? 0 : Dimensions.paddingSizeDefault,
           top: Dimensions.paddingSizeDefault,
-          bottom: 100,
+          bottom: Dimensions.paddingSizeLarge,
         ),
         child: Center(
           child: ConstrainedBox(
@@ -72,7 +45,6 @@ class OfferDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: AspectRatio(
@@ -178,6 +150,19 @@ class OfferDetailsScreen extends StatelessWidget {
                       ? offer.termsConditions!.trim()
                       : 'No terms available.',
                 ),
+                const SizedBox(height: Dimensions.paddingSizeLarge),
+                GetBuilder<CheckoutController>(builder: (checkoutController) {
+                  bool isLoading =
+                      checkoutController.selectedOfferId == offer.id;
+                  return CustomButtonWidget(
+                    buttonText: 'Claim Offer',
+                    icon: Icons.open_in_browser_rounded,
+                    isLoading: isLoading,
+                    onPressed: offer.id == null
+                        ? null
+                        : () => _claimOffer(checkoutController),
+                  );
+                }),
               ],
             ),
           ),

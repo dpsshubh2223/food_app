@@ -141,387 +141,399 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                               child: Column(children: [
                                 const SizedBox(height: 70),
                                 Expanded(
-                                  child:
-                                      Stack(clipBehavior: Clip.none, children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context).cardColor,
-                                        borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(
-                                                Dimensions.radiusExtraLarge),
-                                            topRight: Radius.circular(
-                                                Dimensions.radiusExtraLarge)),
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color: Colors.grey
-                                                  .withValues(alpha: 0.1),
-                                              spreadRadius: 1,
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 1))
-                                        ],
-                                      ),
-                                      child: Column(children: [
-                                        Expanded(
-                                            child: SingleChildScrollView(
-                                          physics:
-                                              const BouncingScrollPhysics(),
-                                          padding: const EdgeInsets.all(
-                                              Dimensions.paddingSizeSmall),
-                                          child: Center(
-                                              child: SizedBox(
-                                                  width: Dimensions.webMaxWidth,
-                                                  child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        const SizedBox(
-                                                            height: 70),
-                                                        CustomTextFieldWidget(
-                                                          titleText:
-                                                              'enter_name'.tr,
-                                                          controller:
-                                                              _nameController,
-                                                          capitalization:
-                                                              TextCapitalization
-                                                                  .words,
-                                                          inputType:
-                                                              TextInputType
-                                                                  .name,
-                                                          focusNode: _nameFocus,
-                                                          nextFocus:
-                                                              _emailFocus,
-                                                          prefixIcon: CupertinoIcons
-                                                              .person_alt_circle_fill,
-                                                          labelText: 'name'.tr,
-                                                          required: true,
-                                                          validator: (value) =>
-                                                              ValidateCheck
-                                                                  .validateEmptyText(
-                                                                      value,
-                                                                      "please_enter_first_name"
-                                                                          .tr),
-                                                        ),
-                                                        const SizedBox(
-                                                            height: Dimensions
-                                                                .paddingSizeExtraOverLarge),
-                                                        !_isPhoneLoading
-                                                            ? Stack(
-                                                                children: [
-                                                                  CustomTextFieldWidget(
-                                                                    titleText:
-                                                                        'write_phone_number'
-                                                                            .tr,
-                                                                    controller:
-                                                                        _phoneController,
-                                                                    focusNode:
-                                                                        _phoneFocus,
-                                                                    inputType:
-                                                                        TextInputType
-                                                                            .phone,
-                                                                    prefixIcon:
-                                                                        CupertinoIcons
-                                                                            .lock_fill,
-                                                                    isEnabled: !profileController
-                                                                            .userInfoModel!
-                                                                            .isPhoneVerified! ||
-                                                                        profileController.userInfoModel!.phone ==
-                                                                            null,
-                                                                    fromUpdateProfile:
-                                                                        true,
-                                                                    labelText:
-                                                                        'phone'
-                                                                            .tr,
-                                                                    required:
-                                                                        true,
-                                                                    isPhone:
-                                                                        true,
-                                                                    onCountryChanged: (CountryCode
-                                                                            countryCode) =>
-                                                                        _countryDialCode =
-                                                                            countryCode.dialCode,
-                                                                    countryDialCode: _countryDialCode ??
-                                                                        Get.find<LocalizationController>()
-                                                                            .locale
-                                                                            .countryCode,
-                                                                    suffixImage: profileController
-                                                                            .userInfoModel!
-                                                                            .isPhoneVerified!
-                                                                        ? Images
-                                                                            .verifiedIcon
-                                                                        : null,
-                                                                  ),
-                                                                  Positioned(
-                                                                    right: 15,
-                                                                    top: 15,
-                                                                    child: !profileController.userInfoModel!.isPhoneVerified! &&
-                                                                            Get.find<SplashController>().configModel!.centralizeLoginSetup!.phoneVerificationStatus!
-                                                                        ? InkWell(
-                                                                            onTap:
-                                                                                () async {
-                                                                              if (!profileController.userInfoModel!.isPhoneVerified! && Get.find<SplashController>().configModel!.centralizeLoginSetup!.phoneVerificationStatus!) {
-                                                                                Get.dialog(CustomLoaderWidget());
-                                                                                await _updateProfile(profileController: profileController, fromButton: false, fromPhone: true);
-                                                                              }
-                                                                            },
-                                                                            child: Image.asset(Images.unVerifiedIcon,
-                                                                                height: 20,
-                                                                                width: 20,
-                                                                                fit: BoxFit.cover),
-                                                                          )
-                                                                        : const SizedBox(),
-                                                                  )
-                                                                ],
-                                                              )
-                                                            : Center(
-                                                                child:
-                                                                    CircularProgressIndicator()),
-                                                        const SizedBox(
-                                                            height: Dimensions
-                                                                .paddingSizeExtraOverLarge),
-                                                        CustomTextFieldWidget(
-                                                          titleText:
-                                                              'enter_email'.tr,
-                                                          controller:
-                                                              _emailController,
-                                                          focusNode:
-                                                              _emailFocus,
-                                                          inputType:
-                                                              TextInputType
-                                                                  .emailAddress,
-                                                          prefixIcon:
-                                                              CupertinoIcons
-                                                                  .mail_solid,
-                                                          labelText: 'email'.tr,
-                                                          required: true,
-                                                          validator: (value) =>
-                                                              ValidateCheck
-                                                                  .validateEmail(
-                                                                      value),
-                                                          suffixImage: profileController
-                                                                      .userInfoModel!
-                                                                      .isEmailVerified! &&
-                                                                  profileController
-                                                                          .userInfoModel!
-                                                                          .email ==
-                                                                      _emailController
-                                                                          .text
-                                                              ? Images
-                                                                  .verifiedIcon
-                                                              : Get.find<SplashController>()
-                                                                      .configModel!
-                                                                      .centralizeLoginSetup!
-                                                                      .emailVerificationStatus!
-                                                                  ? Images
-                                                                      .unVerifiedIcon
-                                                                  : null,
-                                                          suffixOnPressed:
-                                                              () async {
-                                                            if (!profileController
-                                                                    .userInfoModel!
-                                                                    .isEmailVerified! ||
-                                                                profileController
-                                                                        .userInfoModel!
-                                                                        .email !=
-                                                                    _emailController
-                                                                        .text) {
-                                                              Get.dialog(
-                                                                  CustomLoaderWidget());
-                                                              await _updateProfile(
-                                                                  profileController:
-                                                                      profileController,
-                                                                  fromButton:
-                                                                      false,
-                                                                  fromPhone:
-                                                                      false);
-                                                            }
-                                                          },
-                                                        ),
-                                                        const SizedBox(
-                                                            height: Dimensions
-                                                                .paddingSizeExtraOverLarge),
-                                                        GetBuilder<
-                                                                AuthController>(
-                                                            builder:
-                                                                (authController) {
-                                                          return Column(
-                                                              children: [
-                                                                _buildReadOnlySelectionField(
-                                                                  label:
-                                                                      'zone'.tr,
-                                                                  value: authController
-                                                                          .selectedZone
-                                                                          ?.name ??
-                                                                      (authController
-                                                                              .isLocationLoading
-                                                                          ? 'Loading...'
-                                                                          : ''),
-                                                                ),
-                                                                const SizedBox(
-                                                                    height: Dimensions
-                                                                        .paddingSizeExtraOverLarge),
-                                                                _buildSelectionField(
-                                                                  label: 'Area',
-                                                                  hint:
-                                                                      'Select area',
-                                                                  value: authController
-                                                                      .selectedArea,
-                                                                  items: authController
-                                                                      .areaList,
-                                                                  isLoading: authController
-                                                                          .isLocationLoading &&
-                                                                      authController
-                                                                              .areaList ==
-                                                                          null,
-                                                                  onChanged:
-                                                                      (value) {
-                                                                    if (value !=
-                                                                        null) {
-                                                                      authController
-                                                                          .selectArea(
-                                                                              value);
-                                                                    }
-                                                                  },
-                                                                ),
-                                                                const SizedBox(
-                                                                    height: Dimensions
-                                                                        .paddingSizeExtraOverLarge),
-                                                                _buildSelectionField(
-                                                                  label:
-                                                                      'Building',
-                                                                  hint:
-                                                                      'Select building',
-                                                                  value: authController
-                                                                      .selectedBuilding,
-                                                                  items: authController
-                                                                      .buildingList,
-                                                                  onChanged:
-                                                                      (value) {
-                                                                    if (value !=
-                                                                        null) {
-                                                                      authController
-                                                                          .selectBuilding(
-                                                                              value);
-                                                                    }
-                                                                  },
-                                                                ),
-                                                                const SizedBox(
-                                                                    height: Dimensions
-                                                                        .paddingSizeExtraOverLarge),
-                                                                _buildSelectionField(
-                                                                  label:
-                                                                      'Organization',
-                                                                  hint:
-                                                                      'Select organization',
-                                                                  value: authController
-                                                                      .selectedOrganization,
-                                                                  items: authController
-                                                                      .organizationList,
-                                                                  onChanged:
-                                                                      (value) {
-                                                                    if (value !=
-                                                                        null) {
-                                                                      authController
-                                                                          .selectOrganization(
-                                                                              value);
-                                                                    }
-                                                                  },
-                                                                ),
-                                                              ]);
-                                                        }),
-                                                      ]))),
-                                        )),
-                                        SafeArea(
-                                          child: CustomButtonWidget(
-                                            isLoading:
-                                                profileController.isLoading,
-                                            onPressed: () => _updateProfile(
-                                                profileController:
-                                                    profileController,
-                                                fromButton: true,
-                                                fromPhone: false),
-                                            margin: const EdgeInsets.all(
-                                                Dimensions.paddingSizeSmall),
-                                            buttonText: 'update'.tr,
+                                  child: Stack(
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).cardColor,
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                                    topLeft: Radius.circular(
+                                                        Dimensions
+                                                            .radiusExtraLarge),
+                                                    topRight: Radius.circular(
+                                                        Dimensions
+                                                            .radiusExtraLarge)),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                  color: Colors.grey
+                                                      .withValues(alpha: 0.1),
+                                                  spreadRadius: 1,
+                                                  blurRadius: 10,
+                                                  offset: const Offset(0, 1))
+                                            ],
                                           ),
-                                        ),
-                                      ]),
-                                    ),
-                                    Positioned(
-                                      top: -50,
-                                      left: 0,
-                                      right: 0,
-                                      child: Center(
-                                          child: Stack(children: [
-                                        ClipOval(
-                                            child: profileController
-                                                        .pickedFile !=
-                                                    null
-                                                ? GetPlatform.isWeb
-                                                    ? Image.network(
-                                                        profileController
-                                                            .pickedFile!.path,
-                                                        width: 100,
-                                                        height: 100,
-                                                        fit: BoxFit.cover)
-                                                    : Image.file(
-                                                        File(profileController
-                                                            .pickedFile!.path),
-                                                        width: 100,
-                                                        height: 100,
-                                                        fit: BoxFit.cover)
-                                                : CustomImageWidget(
-                                                    image:
-                                                        '${profileController.userInfoModel!.imageFullUrl}',
-                                                    height: 100,
-                                                    width: 100,
-                                                    fit: BoxFit.cover,
-                                                    placeholder: isLoggedIn
-                                                        ? Images
-                                                            .profilePlaceholder
-                                                        : Images.guestIcon,
-                                                    imageColor: isLoggedIn
-                                                        ? Theme.of(context)
-                                                            .hintColor
-                                                        : null,
-                                                  )),
-                                        Positioned(
-                                          bottom: 0,
-                                          right: 0,
-                                          top: 0,
-                                          left: 0,
-                                          child: InkWell(
-                                            onTap: () =>
-                                                profileController.pickImage(),
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.black
-                                                    .withValues(alpha: 0.3),
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                    width: 1,
-                                                    color: Theme.of(context)
-                                                        .primaryColor),
-                                              ),
-                                              child: Container(
-                                                margin:
-                                                    const EdgeInsets.all(25),
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                      width: 2,
-                                                      color: Colors.white),
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: const Icon(
-                                                    Icons.camera_alt,
-                                                    color: Colors.white),
+                                          child: Column(children: [
+                                            Expanded(
+                                                child: SingleChildScrollView(
+                                              physics:
+                                                  const BouncingScrollPhysics(),
+                                              padding: const EdgeInsets.all(
+                                                  Dimensions.paddingSizeSmall),
+                                              child: Center(
+                                                  child: SizedBox(
+                                                      width: Dimensions
+                                                          .webMaxWidth,
+                                                      child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            const SizedBox(
+                                                                height: 70),
+                                                            CustomTextFieldWidget(
+                                                              titleText:
+                                                                  'enter_name'
+                                                                      .tr,
+                                                              controller:
+                                                                  _nameController,
+                                                              capitalization:
+                                                                  TextCapitalization
+                                                                      .words,
+                                                              inputType:
+                                                                  TextInputType
+                                                                      .name,
+                                                              focusNode:
+                                                                  _nameFocus,
+                                                              nextFocus:
+                                                                  _emailFocus,
+                                                              prefixIcon:
+                                                                  CupertinoIcons
+                                                                      .person_alt_circle_fill,
+                                                              labelText:
+                                                                  'name'.tr,
+                                                              required: true,
+                                                              validator: (value) =>
+                                                                  ValidateCheck
+                                                                      .validateEmptyText(
+                                                                          value,
+                                                                          "please_enter_first_name"
+                                                                              .tr),
+                                                            ),
+                                                            const SizedBox(
+                                                                height: Dimensions
+                                                                    .paddingSizeExtraOverLarge),
+                                                            !_isPhoneLoading
+                                                                ? Stack(
+                                                                    children: [
+                                                                      CustomTextFieldWidget(
+                                                                        titleText:
+                                                                            'write_phone_number'.tr,
+                                                                        controller:
+                                                                            _phoneController,
+                                                                        focusNode:
+                                                                            _phoneFocus,
+                                                                        inputType:
+                                                                            TextInputType.phone,
+                                                                        prefixIcon:
+                                                                            CupertinoIcons.lock_fill,
+                                                                        isEnabled:
+                                                                            !profileController.userInfoModel!.isPhoneVerified! ||
+                                                                                profileController.userInfoModel!.phone == null,
+                                                                        fromUpdateProfile:
+                                                                            true,
+                                                                        labelText:
+                                                                            'phone'.tr,
+                                                                        required:
+                                                                            true,
+                                                                        isPhone:
+                                                                            true,
+                                                                        onCountryChanged: (CountryCode
+                                                                                countryCode) =>
+                                                                            _countryDialCode =
+                                                                                countryCode.dialCode,
+                                                                        countryDialCode:
+                                                                            _countryDialCode ??
+                                                                                Get.find<LocalizationController>().locale.countryCode,
+                                                                        suffixImage: profileController.userInfoModel!.isPhoneVerified!
+                                                                            ? Images.verifiedIcon
+                                                                            : null,
+                                                                      ),
+                                                                      Positioned(
+                                                                        right:
+                                                                            15,
+                                                                        top: 15,
+                                                                        child: !profileController.userInfoModel!.isPhoneVerified! &&
+                                                                                Get.find<SplashController>().configModel!.centralizeLoginSetup!.phoneVerificationStatus!
+                                                                            ? InkWell(
+                                                                                onTap: () async {
+                                                                                  if (!profileController.userInfoModel!.isPhoneVerified! && Get.find<SplashController>().configModel!.centralizeLoginSetup!.phoneVerificationStatus!) {
+                                                                                    Get.dialog(CustomLoaderWidget());
+                                                                                    await _updateProfile(profileController: profileController, fromButton: false, fromPhone: true);
+                                                                                  }
+                                                                                },
+                                                                                child: Image.asset(Images.unVerifiedIcon, height: 20, width: 20, fit: BoxFit.cover),
+                                                                              )
+                                                                            : const SizedBox(),
+                                                                      )
+                                                                    ],
+                                                                  )
+                                                                : Center(
+                                                                    child:
+                                                                        CircularProgressIndicator()),
+                                                            const SizedBox(
+                                                                height: Dimensions
+                                                                    .paddingSizeExtraOverLarge),
+                                                            CustomTextFieldWidget(
+                                                              titleText:
+                                                                  'enter_email'
+                                                                      .tr,
+                                                              controller:
+                                                                  _emailController,
+                                                              focusNode:
+                                                                  _emailFocus,
+                                                              inputType:
+                                                                  TextInputType
+                                                                      .emailAddress,
+                                                              prefixIcon:
+                                                                  CupertinoIcons
+                                                                      .mail_solid,
+                                                              labelText:
+                                                                  'email'.tr,
+                                                              required: true,
+                                                              validator: (value) =>
+                                                                  ValidateCheck
+                                                                      .validateEmail(
+                                                                          value),
+                                                              suffixImage: profileController
+                                                                          .userInfoModel!
+                                                                          .isEmailVerified! &&
+                                                                      profileController
+                                                                              .userInfoModel!
+                                                                              .email ==
+                                                                          _emailController
+                                                                              .text
+                                                                  ? Images
+                                                                      .verifiedIcon
+                                                                  : Get.find<SplashController>()
+                                                                          .configModel!
+                                                                          .centralizeLoginSetup!
+                                                                          .emailVerificationStatus!
+                                                                      ? Images
+                                                                          .unVerifiedIcon
+                                                                      : null,
+                                                              suffixOnPressed:
+                                                                  () async {
+                                                                if (!profileController
+                                                                        .userInfoModel!
+                                                                        .isEmailVerified! ||
+                                                                    profileController
+                                                                            .userInfoModel!
+                                                                            .email !=
+                                                                        _emailController
+                                                                            .text) {
+                                                                  Get.dialog(
+                                                                      CustomLoaderWidget());
+                                                                  await _updateProfile(
+                                                                      profileController:
+                                                                          profileController,
+                                                                      fromButton:
+                                                                          false,
+                                                                      fromPhone:
+                                                                          false);
+                                                                }
+                                                              },
+                                                            ),
+                                                            const SizedBox(
+                                                                height: Dimensions
+                                                                    .paddingSizeExtraOverLarge),
+                                                            GetBuilder<
+                                                                    AuthController>(
+                                                                builder:
+                                                                    (authController) {
+                                                              return Column(
+                                                                  children: [
+                                                                    _buildSelectionField(
+                                                                      label:
+                                                                          'zone'
+                                                                              .tr,
+                                                                      hint: 'select_zone'
+                                                                          .tr,
+                                                                      value: authController
+                                                                          .selectedZone,
+                                                                      items: authController
+                                                                          .zoneList,
+                                                                      isLoading: authController
+                                                                              .isLocationLoading &&
+                                                                          authController.zoneList ==
+                                                                              null,
+                                                                      onChanged:
+                                                                          (value) {
+                                                                        if (value !=
+                                                                            null) {
+                                                                          authController
+                                                                              .selectZone(value);
+                                                                        }
+                                                                      },
+                                                                    ),
+                                                                    const SizedBox(
+                                                                        height:
+                                                                            Dimensions.paddingSizeExtraOverLarge),
+                                                                    _buildSelectionField(
+                                                                      label:
+                                                                          'Area',
+                                                                      hint:
+                                                                          'Select area',
+                                                                      value: authController
+                                                                          .selectedArea,
+                                                                      items: authController
+                                                                          .areaList,
+                                                                      isLoading: authController
+                                                                              .isLocationLoading &&
+                                                                          authController.areaList ==
+                                                                              null,
+                                                                      onChanged:
+                                                                          (value) {
+                                                                        if (value !=
+                                                                            null) {
+                                                                          authController
+                                                                              .selectArea(value);
+                                                                        }
+                                                                      },
+                                                                    ),
+                                                                    const SizedBox(
+                                                                        height:
+                                                                            Dimensions.paddingSizeExtraOverLarge),
+                                                                    _buildSelectionField(
+                                                                      label:
+                                                                          'Building',
+                                                                      hint:
+                                                                          'Select building',
+                                                                      value: authController
+                                                                          .selectedBuilding,
+                                                                      items: authController
+                                                                          .buildingList,
+                                                                      onChanged:
+                                                                          (value) {
+                                                                        if (value !=
+                                                                            null) {
+                                                                          authController
+                                                                              .selectBuilding(value);
+                                                                        }
+                                                                      },
+                                                                    ),
+                                                                    const SizedBox(
+                                                                        height:
+                                                                            Dimensions.paddingSizeExtraOverLarge),
+                                                                    _buildSelectionField(
+                                                                      label:
+                                                                          'Organization',
+                                                                      hint:
+                                                                          'Select organization',
+                                                                      value: authController
+                                                                          .selectedOrganization,
+                                                                      items: authController
+                                                                          .organizationList,
+                                                                      onChanged:
+                                                                          (value) {
+                                                                        if (value !=
+                                                                            null) {
+                                                                          authController
+                                                                              .selectOrganization(value);
+                                                                        }
+                                                                      },
+                                                                    ),
+                                                                  ]);
+                                                            }),
+                                                          ]))),
+                                            )),
+                                            SafeArea(
+                                              child: CustomButtonWidget(
+                                                isLoading:
+                                                    profileController.isLoading,
+                                                onPressed: () => _updateProfile(
+                                                    profileController:
+                                                        profileController,
+                                                    fromButton: true,
+                                                    fromPhone: false),
+                                                margin: const EdgeInsets.all(
+                                                    Dimensions
+                                                        .paddingSizeSmall),
+                                                buttonText: 'update'.tr,
                                               ),
                                             ),
-                                          ),
+                                          ]),
                                         ),
-                                      ])),
-                                    ),
-                                  ]),
+                                        Positioned(
+                                          top: -50,
+                                          left: 0,
+                                          right: 0,
+                                          child: Center(
+                                              child: Stack(children: [
+                                            ClipOval(
+                                                child: profileController
+                                                            .pickedFile !=
+                                                        null
+                                                    ? GetPlatform.isWeb
+                                                        ? Image.network(
+                                                            profileController
+                                                                .pickedFile!
+                                                                .path,
+                                                            width: 100,
+                                                            height: 100,
+                                                            fit: BoxFit.cover)
+                                                        : Image.file(
+                                                            File(
+                                                                profileController
+                                                                    .pickedFile!
+                                                                    .path),
+                                                            width: 100,
+                                                            height: 100,
+                                                            fit: BoxFit.cover)
+                                                    : CustomImageWidget(
+                                                        image:
+                                                            '${profileController.userInfoModel!.imageFullUrl}',
+                                                        height: 100,
+                                                        width: 100,
+                                                        fit: BoxFit.cover,
+                                                        placeholder: isLoggedIn
+                                                            ? Images
+                                                                .profilePlaceholder
+                                                            : Images.guestIcon,
+                                                        imageColor: isLoggedIn
+                                                            ? Theme.of(context)
+                                                                .hintColor
+                                                            : null,
+                                                      )),
+                                            Positioned(
+                                              bottom: 0,
+                                              right: 0,
+                                              top: 0,
+                                              left: 0,
+                                              child: InkWell(
+                                                onTap: () => profileController
+                                                    .pickImage(),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black
+                                                        .withValues(alpha: 0.3),
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                        width: 1,
+                                                        color: Theme.of(context)
+                                                            .primaryColor),
+                                                  ),
+                                                  child: Container(
+                                                    margin:
+                                                        const EdgeInsets.all(
+                                                            25),
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                          width: 2,
+                                                          color: Colors.white),
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: const Icon(
+                                                        Icons.camera_alt,
+                                                        color: Colors.white),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ])),
+                                        ),
+                                      ]),
                                 ),
                               ]),
                             )
@@ -780,12 +792,18 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                           return Column(children: [
                             Row(children: [
                               Expanded(
-                                child: _buildReadOnlySelectionField(
+                                child: _buildSelectionField(
                                   label: 'zone'.tr,
-                                  value: authController.selectedZone?.name ??
-                                      (authController.isLocationLoading
-                                          ? 'Loading...'
-                                          : ''),
+                                  hint: 'select_zone'.tr,
+                                  value: authController.selectedZone,
+                                  items: authController.zoneList,
+                                  isLoading: authController.isLocationLoading &&
+                                      authController.zoneList == null,
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      authController.selectZone(value);
+                                    }
+                                  },
                                 ),
                               ),
                               const SizedBox(
@@ -869,32 +887,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     );
   }
 
-  Widget _buildReadOnlySelectionField({
-    required String label,
-    required String value,
-  }) {
-    return TextFormField(
-      key: ValueKey(value),
-      initialValue: value,
-      readOnly: true,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(Dimensions.radiusDefault)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-          borderSide:
-              BorderSide(color: Theme.of(context).disabledColor, width: 0.3),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: Dimensions.paddingSizeDefault,
-          vertical: Dimensions.paddingSizeSmall,
-        ),
-      ),
-      style: robotoRegular,
-    );
-  }
-
   Widget _buildSelectionField({
     required String label,
     required String hint,
@@ -903,8 +895,9 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     required Function(SignUpSelectionModel?) onChanged,
     bool isLoading = false,
   }) {
+    SignUpSelectionModel? selectedValue = _dropdownValue(value, items);
     return DropdownButtonFormField<SignUpSelectionModel>(
-      value: value,
+      value: selectedValue,
       isExpanded: true,
       decoration: InputDecoration(
         labelText: label,
@@ -932,6 +925,21 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     );
   }
 
+  SignUpSelectionModel? _dropdownValue(
+    SignUpSelectionModel? value,
+    List<SignUpSelectionModel>? items,
+  ) {
+    if (value == null || items == null) {
+      return null;
+    }
+    for (final SignUpSelectionModel item in items) {
+      if (item.id == value.id) {
+        return item;
+      }
+    }
+    return null;
+  }
+
   Future<void> _updateProfile(
       {required ProfileController profileController,
       required bool fromButton,
@@ -957,6 +965,8 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       showCustomSnackBar('enter_phone_number'.tr);
     } else if (phoneNumber.length < 6) {
       showCustomSnackBar('enter_a_valid_phone_number'.tr);
+    } else if (authController.selectedZone == null) {
+      showCustomSnackBar('Please select zone');
     } else if (authController.selectedArea == null) {
       showCustomSnackBar('Please select area');
     } else if (authController.selectedBuilding == null) {
@@ -973,7 +983,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
             : fromPhone
                 ? 'phone'
                 : 'email',
-        zoneId: authController.selectedZone?.id,
+        zoneId: authController.selectedZone!.id,
         areaId: authController.selectedArea!.id,
         buildingId: authController.selectedBuilding!.id,
         companyId: authController.selectedOrganization!.id,
