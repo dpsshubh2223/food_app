@@ -13,23 +13,34 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stackfood_multivendor/util/app_constants.dart';
 
-class LocationService implements LocationServiceInterface{
+class LocationService implements LocationServiceInterface {
   final LocationRepoInterface locationRepoInterface;
   LocationService({required this.locationRepoInterface});
 
   @override
-  Future<Position> getPosition(LatLng? defaultLatLng, LatLng configLatLng) async {
+  Future<Position> getPosition(
+      LatLng? defaultLatLng, LatLng configLatLng) async {
     Position myPosition;
     try {
       await Geolocator.requestPermission();
       Position newLocalData = await Geolocator.getCurrentPosition();
       myPosition = newLocalData;
-    }catch(e) {
+    } catch (e) {
       myPosition = Position(
-        latitude: defaultLatLng != null ? defaultLatLng.latitude : configLatLng.latitude,
-        longitude: defaultLatLng != null ? defaultLatLng.longitude : configLatLng.longitude,
-        timestamp: DateTime.now(), accuracy: 1, altitude: 1, heading: 1, speed: 1, speedAccuracy: 1, altitudeAccuracy: 1, headingAccuracy: 1,
-
+        latitude: defaultLatLng != null
+            ? defaultLatLng.latitude
+            : configLatLng.latitude,
+        longitude: defaultLatLng != null
+            ? defaultLatLng.longitude
+            : configLatLng.longitude,
+        timestamp: DateTime.now(),
+        accuracy: 1,
+        altitude: 1,
+        heading: 1,
+        speed: 1,
+        speedAccuracy: 1,
+        altitudeAccuracy: 1,
+        headingAccuracy: 1,
       );
     }
     return myPosition;
@@ -41,30 +52,38 @@ class LocationService implements LocationServiceInterface{
   }
 
   @override
-  void handleTopicSubscription(AddressModel? savedAddress, AddressModel? address) {
-    if(!GetPlatform.isWeb) {
-      if(Get.find<SplashController>().configModel!.demo!) {
-        FirebaseMessaging.instance.subscribeToTopic(AppConstants.demoResetTopic);
+  void handleTopicSubscription(
+      AddressModel? savedAddress, AddressModel? address) {
+    if (!GetPlatform.isWeb) {
+      if (Get.find<SplashController>().configModel!.demo!) {
+        FirebaseMessaging.instance
+            .subscribeToTopic(AppConstants.demoResetTopic);
       } else {
-        FirebaseMessaging.instance.unsubscribeFromTopic(AppConstants.demoResetTopic);
+        FirebaseMessaging.instance
+            .unsubscribeFromTopic(AppConstants.demoResetTopic);
       }
       if (savedAddress != null) {
-        if(savedAddress.zoneIds != null) {
-          for(int zoneID in savedAddress.zoneIds!) {
-            FirebaseMessaging.instance.unsubscribeFromTopic('zone_${zoneID}_customer');
+        if (savedAddress.zoneIds != null) {
+          for (int zoneID in savedAddress.zoneIds!) {
+            FirebaseMessaging.instance
+                .unsubscribeFromTopic('zone_${zoneID}_customer');
           }
-        }else {
-          FirebaseMessaging.instance.unsubscribeFromTopic('zone_${savedAddress.zoneId}_customer');
+        } else {
+          FirebaseMessaging.instance
+              .unsubscribeFromTopic('zone_${savedAddress.zoneId}_customer');
         }
       } else {
-        FirebaseMessaging.instance.subscribeToTopic('zone_${address!.zoneId}_customer');
+        FirebaseMessaging.instance
+            .subscribeToTopic('zone_${address!.zoneId}_customer');
       }
-      if(address!.zoneIds != null) {
-        for(int zoneID in address.zoneIds!) {
-          FirebaseMessaging.instance.subscribeToTopic('zone_${zoneID}_customer');
+      if (address!.zoneIds != null) {
+        for (int zoneID in address.zoneIds!) {
+          FirebaseMessaging.instance
+              .subscribeToTopic('zone_${zoneID}_customer');
         }
-      }else {
-        FirebaseMessaging.instance.subscribeToTopic('zone_${address.zoneId}_customer');
+      } else {
+        FirebaseMessaging.instance
+            .subscribeToTopic('zone_${address.zoneId}_customer');
       }
     }
   }
@@ -73,7 +92,7 @@ class LocationService implements LocationServiceInterface{
   Future<LatLng> getLatLng(String id) async {
     LatLng latLng = const LatLng(0, 0);
     Response? response = await locationRepoInterface.get(id);
-    if(response?.statusCode == 200) {
+    if (response?.statusCode == 200) {
       /*PlaceDetailsModel placeDetails = PlaceDetailsModel.fromJson(response?.body);
       if(placeDetails.status == 'OK') {
         latLng = LatLng(placeDetails.result!.geometry!.location!.lat!, placeDetails.result!.geometry!.location!.lng!);
@@ -98,7 +117,8 @@ class LocationService implements LocationServiceInterface{
     Response response = await locationRepoInterface.searchLocation(text);
     if (response.statusCode == 200 /*&& response.body['status'] == 'OK'*/) {
       predictionList = [];
-      response.body['suggestions'].forEach((prediction) => predictionList.add(PredictionModel.fromJson(prediction)));
+      response.body['suggestions'].forEach((prediction) =>
+          predictionList.add(PredictionModel.fromJson(prediction)));
     } else {
       showCustomSnackBar(response.body['error_message'] ?? response.bodyString);
     }
@@ -108,25 +128,27 @@ class LocationService implements LocationServiceInterface{
   @override
   void checkLocationPermission(Function onTap) async {
     LocationPermission permission = await Geolocator.checkPermission();
-    if(permission == LocationPermission.denied) {
+    if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-    if(permission == LocationPermission.denied) {
+    if (permission == LocationPermission.denied) {
       showCustomSnackBar('you_have_to_allow'.tr);
-    }else if(permission == LocationPermission.deniedForever) {
+    } else if (permission == LocationPermission.deniedForever) {
       Get.dialog(const PermissionDialog());
-    }else {
+    } else {
       onTap();
     }
   }
 
   @override
   void handleRoute(bool fromSignUp, String? route, bool canRoute) {
-    if(fromSignUp) {
+    if (fromSignUp) {
       Get.offAllNamed(RouteHelper.getInterestRoute());
-    }else {
-      if(route != null && canRoute) {
-        Get.offAllNamed(route);
+    } else {
+      if (route != null && canRoute) {
+        Get.offAllNamed(route == RouteHelper.signIn
+            ? RouteHelper.getSignInRoute(RouteHelper.splash)
+            : route);
       } else {
         Get.offAllNamed(RouteHelper.getInitialRoute());
       }
@@ -134,17 +156,19 @@ class LocationService implements LocationServiceInterface{
   }
 
   @override
-  void handleMapAnimation(GoogleMapController? mapController, Position myPosition) {
+  void handleMapAnimation(
+      GoogleMapController? mapController, Position myPosition) {
     if (mapController != null) {
       mapController.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(myPosition.latitude, myPosition.longitude), zoom: 16),
+        CameraPosition(
+            target: LatLng(myPosition.latitude, myPosition.longitude),
+            zoom: 16),
       ));
     }
   }
 
   @override
   Future<void> updateZone() async {
-     await locationRepoInterface.updateZone();
+    await locationRepoInterface.updateZone();
   }
-
 }

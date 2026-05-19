@@ -179,13 +179,14 @@ class AuthController extends GetxController implements GetxService {
     _buildingList = null;
     _organizationList = null;
     update();
-    _zoneList = await authServiceInterface.getZoneList();
+    _zoneList = _filterZoneListForSavedAddress(
+        await authServiceInterface.getZoneList());
     _isLocationLoading = false;
     update();
   }
 
   Future<void> getAreaListFromSelectedAddressZone() async {
-    int? zoneId = AddressHelper.getAddressFromSharedPref()?.zoneId;
+    int? zoneId = _getSavedAddressZoneId();
     _selectedZone = null;
     _selectedArea = null;
     _selectedBuilding = null;
@@ -196,7 +197,8 @@ class AuthController extends GetxController implements GetxService {
 
     _isLocationLoading = true;
     update();
-    _zoneList = await authServiceInterface.getZoneList();
+    _zoneList = _filterZoneListForSavedAddress(
+        await authServiceInterface.getZoneList());
 
     if (zoneId == null) {
       _isLocationLoading = false;
@@ -225,7 +227,7 @@ class AuthController extends GetxController implements GetxService {
     String? buildingName,
     String? companyName,
   }) async {
-    zoneId ??= AddressHelper.getAddressFromSharedPref()?.zoneId;
+    zoneId ??= _getSavedAddressZoneId();
     _selectedZone = zoneId != null
         ? SignUpSelectionModel(id: zoneId, name: zoneName ?? 'Zone $zoneId')
         : null;
@@ -244,7 +246,8 @@ class AuthController extends GetxController implements GetxService {
     _isLocationLoading = true;
     update();
 
-    _zoneList ??= await authServiceInterface.getZoneList();
+    _zoneList = _filterZoneListForSavedAddress(
+        await authServiceInterface.getZoneList());
     if (_zoneList != null) {
       _selectedZone = _findSelection(
         _zoneList!,
@@ -284,6 +287,45 @@ class AuthController extends GetxController implements GetxService {
       (item) => item.id == id,
       orElse: () => SignUpSelectionModel(id: id, name: fallbackName ?? '$id'),
     );
+  }
+
+  int? _getSavedAddressZoneId() {
+    final address = AddressHelper.getAddressFromSharedPref();
+    if (address == null) {
+      return null;
+    }
+    if (address.zoneId != null && address.zoneId != 0) {
+      return address.zoneId;
+    }
+    if (address.zoneIds != null && address.zoneIds!.isNotEmpty) {
+      return address.zoneIds!.first;
+    }
+    return null;
+  }
+
+  List<SignUpSelectionModel>? _filterZoneListForSavedAddress(
+    List<SignUpSelectionModel>? zones,
+  ) {
+    if (zones == null) {
+      return null;
+    }
+
+    final address = AddressHelper.getAddressFromSharedPref();
+    final Set<int> savedZoneIds = {};
+    if (address?.zoneId != null && address!.zoneId != 0) {
+      savedZoneIds.add(address.zoneId!);
+    }
+    if (address?.zoneIds != null) {
+      savedZoneIds.addAll(address!.zoneIds!);
+    }
+
+    if (savedZoneIds.isEmpty) {
+      return zones;
+    }
+
+    return zones
+        .where((zone) => zone.id != null && savedZoneIds.contains(zone.id))
+        .toList();
   }
 
   Future<void> selectZone(SignUpSelectionModel zone) async {

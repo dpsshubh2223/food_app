@@ -58,7 +58,8 @@ class CustomDropdownState<T> extends State<CustomDropdown<T?>>
     super.initState();
 
     _animationController?.dispose();
-    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
+    _animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 200));
     _expandAnimation = CurvedAnimation(
       parent: _animationController!,
       curve: Curves.easeInOut,
@@ -72,6 +73,8 @@ class CustomDropdownState<T> extends State<CustomDropdown<T?>>
   @override
   Widget build(BuildContext context) {
     var style = widget.dropdownButtonStyle;
+    final bool hasCurrentItem =
+        _currentIndex >= 0 && _currentIndex < widget.items.length;
     // link the overlay to the button
     return CompositedTransformTarget(
       link: this._layerLink,
@@ -83,11 +86,13 @@ class CustomDropdownState<T> extends State<CustomDropdown<T?>>
           child: Padding(
             padding: const EdgeInsets.all(5),
             child: Row(
-              mainAxisAlignment: style.mainAxisAlignment ?? MainAxisAlignment.center,
-              textDirection: widget.leadingIcon ? TextDirection.rtl : TextDirection.ltr,
+              mainAxisAlignment:
+                  style.mainAxisAlignment ?? MainAxisAlignment.center,
+              textDirection:
+                  widget.leadingIcon ? TextDirection.rtl : TextDirection.ltr,
               mainAxisSize: MainAxisSize.max,
               children: [
-                if (_currentIndex == -1) ...[
+                if (!hasCurrentItem) ...[
                   Expanded(child: widget.child),
                 ] else ...[
                   Expanded(child: widget.items[_currentIndex]),
@@ -95,7 +100,8 @@ class CustomDropdownState<T> extends State<CustomDropdown<T?>>
                 if (!widget.hideIcon)
                   RotationTransition(
                     turns: _rotateAnimation,
-                    child: widget.icon ?? Icon(Icons.expand_more, color: widget.iconColor),
+                    child: widget.icon ??
+                        Icon(Icons.expand_more, color: widget.iconColor),
                   ),
               ],
             ),
@@ -129,12 +135,14 @@ class CustomDropdownState<T> extends State<CustomDropdown<T?>>
                 top: topOffset,
                 width: widget.dropdownStyle.width ?? size.width,
                 child: CompositedTransformFollower(
-                  offset: widget.dropdownStyle.offset ?? Offset(0, size.height + 5),
+                  offset:
+                      widget.dropdownStyle.offset ?? Offset(0, size.height + 5),
                   link: this._layerLink,
                   showWhenUnlinked: false,
                   child: Material(
                     elevation: widget.dropdownStyle.elevation ?? 0,
-                    borderRadius: widget.dropdownStyle.borderRadius ?? BorderRadius.zero,
+                    borderRadius:
+                        widget.dropdownStyle.borderRadius ?? BorderRadius.zero,
                     color: widget.dropdownStyle.color,
                     child: SizeTransition(
                       axisAlignment: 1,
@@ -147,19 +155,21 @@ class CustomDropdownState<T> extends State<CustomDropdown<T?>>
                                   15,
                             ),
                         child: ListView(
-                          padding: widget.dropdownStyle.padding ?? EdgeInsets.zero,
+                          padding:
+                              widget.dropdownStyle.padding ?? EdgeInsets.zero,
                           shrinkWrap: true,
                           children: widget.items.asMap().entries.map((item) {
                             return InkWell(
                               onTap: () {
-                                if(widget.indexZeroNotSelected) {
-                                  if(item.key != 0) {
+                                if (widget.indexZeroNotSelected) {
+                                  if (item.key != 0) {
                                     setState(() => _currentIndex = item.key);
-                                    widget.onChange!(item.value.value, item.key);
+                                    widget.onChange!(
+                                        item.value.value, item.key);
                                     toggleDropdown();
                                   }
                                 } else {
-                                  if(widget.canAddValue) {
+                                  if (widget.canAddValue) {
                                     setState(() => _currentIndex = item.key);
                                   }
                                   widget.onChange!(item.value.value, item.key);

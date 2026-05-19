@@ -200,7 +200,8 @@ class ConfigModel {
   });
 
   ConfigModel.fromJson(Map<String, dynamic> json) {
-    businessName = json['business_name'];
+    // businessName = json['business_name'];
+    businessName = "UMI+";
     logoFullUrl = json['logo_full_url'];
     address = json['address'];
     phone = json['phone'];
@@ -211,6 +212,7 @@ class ConfigModel {
     termsAndConditions = json['terms_and_conditions'];
     privacyPolicy = json['privacy_policy'];
     aboutUs = json['about_us'];
+
     country = json['country'];
     defaultLocation = json['default_location'] != null ? DefaultLocation.fromJson(json['default_location']) : null;
     appUrlAndroid = json['app_url_android'];

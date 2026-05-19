@@ -1,4 +1,3 @@
-
 import 'package:get/get.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/favourite/controllers/favourite_controller.dart';
@@ -10,16 +9,20 @@ import 'package:stackfood_multivendor/helper/maintance_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
 import 'package:stackfood_multivendor/util/app_constants.dart';
 
-void route({required NotificationBodyModel? notificationBody, required DeepLinkBody? linkBody}) {
+void route(
+    {required NotificationBodyModel? notificationBody,
+    required DeepLinkBody? linkBody}) {
   double? minimumVersion = _getMinimumVersion();
   bool needsUpdate = AppConstants.appVersion < minimumVersion;
 
   bool isInMaintenance = MaintenanceHelper.isMaintenanceEnable();
   if (needsUpdate || isInMaintenance) {
     Get.offNamed(RouteHelper.getUpdateRoute(needsUpdate));
-  } else if(!GetPlatform.isWeb){
+  } else if (!GetPlatform.isWeb) {
     _handleNavigation(notificationBody, linkBody);
-  } else if (GetPlatform.isWeb && Get.currentRoute.contains(RouteHelper.update) && !isInMaintenance) {
+  } else if (GetPlatform.isWeb &&
+      Get.currentRoute.contains(RouteHelper.update) &&
+      !isInMaintenance) {
     Get.offNamed(RouteHelper.getInitialRoute());
   }
 }
@@ -34,7 +37,8 @@ double _getMinimumVersion() {
   }
 }
 
-void _handleNavigation(NotificationBodyModel? notificationBody, DeepLinkBody? linkBody) async {
+void _handleNavigation(
+    NotificationBodyModel? notificationBody, DeepLinkBody? linkBody) async {
   if (Get.find<AuthController>().isLoggedIn()) {
     if (notificationBody != null && linkBody == null) {
       _forNotificationRouteProcess(notificationBody);
@@ -49,15 +53,22 @@ void _handleNavigation(NotificationBodyModel? notificationBody, DeepLinkBody? li
 }
 
 void _forNotificationRouteProcess(NotificationBodyModel? notificationBody) {
-  if(notificationBody!.notificationType == NotificationType.order) {
-    Get.toNamed(RouteHelper.getOrderDetailsRoute(notificationBody.orderId, fromNotification: true));
-  }else if(notificationBody.notificationType == NotificationType.message) {
-    Get.toNamed(RouteHelper.getChatRoute(notificationBody: notificationBody, conversationID: notificationBody.conversationId, fromNotification: true));
-  }else if(notificationBody.notificationType == NotificationType.block || notificationBody.notificationType == NotificationType.unblock){
+  if (notificationBody!.notificationType == NotificationType.order) {
+    Get.toNamed(RouteHelper.getOrderDetailsRoute(notificationBody.orderId,
+        fromNotification: true));
+  } else if (notificationBody.notificationType == NotificationType.message) {
+    Get.toNamed(RouteHelper.getChatRoute(
+        notificationBody: notificationBody,
+        conversationID: notificationBody.conversationId,
+        fromNotification: true));
+  } else if (notificationBody.notificationType == NotificationType.block ||
+      notificationBody.notificationType == NotificationType.unblock) {
     Get.toNamed(RouteHelper.getSignInRoute(RouteHelper.notification));
-  }else if(notificationBody.notificationType == NotificationType.add_fund || notificationBody.notificationType == NotificationType.referral_earn || notificationBody.notificationType == NotificationType.CashBack){
+  } else if (notificationBody.notificationType == NotificationType.add_fund ||
+      notificationBody.notificationType == NotificationType.referral_earn ||
+      notificationBody.notificationType == NotificationType.CashBack) {
     Get.toNamed(RouteHelper.getWalletRoute(fromNotification: true));
-  }else{
+  } else {
     Get.toNamed(RouteHelper.getNotificationRoute(fromNotification: true));
   }
 }
@@ -66,20 +77,24 @@ Future<void> _forLoggedInUserRouteProcess() async {
   Get.find<AuthController>().updateToken();
   await Get.find<FavouriteController>().getFavouriteList();
   if (AddressHelper.getAddressFromSharedPref() != null) {
-    Get.offNamed(RouteHelper.getInitialRoute(fromSplash: true ));
+    Get.offNamed(RouteHelper.getInitialRoute(fromSplash: true));
   } else {
     Get.offNamed(RouteHelper.getAccessLocationRoute('splash'));
   }
 }
 
 void _newlyRegisteredRouteProcess() {
-  if(AppConstants.languages.length > 1) {
+  if (AppConstants.languages.length > 1) {
     Get.offNamed(RouteHelper.getLanguageRoute('splash'));
-  }else {
+  } else {
     Get.offNamed(RouteHelper.getOnBoardingRoute());
   }
 }
 
 void _forLoggedOutUserRouteProcess() {
-  Get.offNamed(RouteHelper.getSignInRoute(RouteHelper.splash));
+  if (AddressHelper.getAddressFromSharedPref() != null) {
+    Get.offNamed(RouteHelper.getSignInRoute(RouteHelper.splash));
+  } else {
+    Get.offNamed(RouteHelper.getAccessLocationRoute(RouteHelper.signIn));
+  }
 }
