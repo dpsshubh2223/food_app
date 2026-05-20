@@ -164,6 +164,6 @@ class OnBoardingScreen extends StatelessWidget {
 
   void _configureToRouteInitialPage() async {
     Get.find<SplashController>().disableIntro();
-    Get.offNamed(RouteHelper.getSignInRoute(RouteHelper.onBoarding));
+    Get.offNamed(RouteHelper.getPickMapRoute(RouteHelper.onBoarding, false));
   }
 }

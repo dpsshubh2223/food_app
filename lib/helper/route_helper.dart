@@ -946,7 +946,8 @@ class RouteHelper {
         ? const UpdateScreen(isUpdate: true)
         : MaintenanceHelper.isMaintenanceEnable()
             ? const UpdateScreen(isUpdate: false)
-            : !Get.find<AuthController>().isLoggedIn()
+            : !Get.find<AuthController>().isLoggedIn() &&
+                    !Get.find<AuthController>().isGuestLoggedIn()
                 ? const SignInScreen(exitFromApp: true, backFromThis: false)
                 : (AddressHelper.getAddressFromSharedPref() == null && !byPuss)
                     ? AccessLocationScreen(
