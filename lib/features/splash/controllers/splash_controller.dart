@@ -50,6 +50,16 @@ class SplashController extends GetxController implements GetxService {
 
   DateTime get currentTime => DateTime.now();
 
+  final DateTime _splashStartTime = DateTime.now();
+  static const Duration _minimumSplashDuration = Duration(seconds: 3);
+
+  Future<void> _waitForMinimumSplashDuration() async {
+    final Duration remaining = _minimumSplashDuration - DateTime.now().difference(_splashStartTime);
+    if (remaining > Duration.zero) {
+      await Future.delayed(remaining);
+    }
+  }
+
   // Future<bool> getConfigData({bool handleMaintenanceMode = false, DataSourceEnum source = DataSourceEnum.local}) async {
   //   bool isSuccess = false;
   //
@@ -111,7 +121,7 @@ class SplashController extends GetxController implements GetxService {
 
   }
 
-  void _handleConfigResponse(Response response, bool handleMaintenanceMode, bool fromMainFunction, bool fromDemoReset, {required NotificationBodyModel? notificationBody, required DeepLinkBody? linkBody}) {
+  void _handleConfigResponse(Response response, bool handleMaintenanceMode, bool fromMainFunction, bool fromDemoReset, {required NotificationBodyModel? notificationBody, required DeepLinkBody? linkBody}) async {
     if(response.statusCode == 200) {
       _configModel = splashServiceInterface.prepareConfigData(response);
       if(_configModel != null) {
@@ -125,6 +135,7 @@ class SplashController extends GetxController implements GetxService {
             Get.offNamed(RouteHelper.getInitialRoute());
           }
         }
+        await _waitForMinimumSplashDuration();
         if(fromMainFunction) {
           _mainConfigRouting();
         } else if (fromDemoReset) {

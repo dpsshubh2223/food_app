@@ -2,8 +2,9 @@ import 'package:stackfood_multivendor/api/api_client.dart';
 import 'package:stackfood_multivendor/features/coupon/domain/models/coupon_model.dart';
 import 'package:stackfood_multivendor/features/coupon/domain/models/customer_coupon_model.dart';
 import 'package:stackfood_multivendor/features/coupon/domain/reposotories/coupon_repository_interface.dart';
+import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/util/app_constants.dart';
-import 'package:get/get_connect/connect.dart';
+import 'package:get/get.dart';
 
 class CouponRepository implements CouponRepositoryInterface {
   final ApiClient apiClient;
@@ -20,9 +21,9 @@ class CouponRepository implements CouponRepositoryInterface {
     Response response;
 
     if(orderRestaurantId != null && orderAmount != null) {
-      response = await apiClient.getData('${AppConstants.couponUri}?${restaurantId != null ? 'restaurant_id' : 'customer_id'}=${restaurantId ?? customerId}&order_restaurant_id=$orderRestaurantId&order_amount=$orderAmount');
+      response = await apiClient.getData('${AppConstants.couponUri}?${restaurantId != null ? 'restaurant_id' : 'customer_id'}=${restaurantId ?? customerId}&order_restaurant_id=$orderRestaurantId&order_amount=$orderAmount$_organizationIdQuery');
     }else {
-      response = await apiClient.getData('${AppConstants.couponUri}?${restaurantId != null ? 'restaurant_id' : 'customer_id'}=${restaurantId ?? customerId}');
+      response = await apiClient.getData('${AppConstants.couponUri}?${restaurantId != null ? 'restaurant_id' : 'customer_id'}=${restaurantId ?? customerId}$_organizationIdQuery');
     }
 
     if(response.statusCode == 200) {
@@ -34,7 +35,7 @@ class CouponRepository implements CouponRepositoryInterface {
   @override
   Future<List<CouponModel>?> getRestaurantCouponList(int restaurantId) async {
     List<CouponModel>? couponList;
-    Response response =  await apiClient.getData('${AppConstants.restaurantWiseCouponUri}?restaurant_id=$restaurantId');
+    Response response =  await apiClient.getData('${AppConstants.restaurantWiseCouponUri}?restaurant_id=$restaurantId$_organizationIdQuery');
     if(response.statusCode == 200) {
       couponList = [];
       response.body.forEach((category) {
@@ -42,6 +43,16 @@ class CouponRepository implements CouponRepositoryInterface {
       });
     }
     return couponList;
+  }
+
+  String get _organizationIdQuery {
+    if (Get.isRegistered<ProfileController>()) {
+      final userInfo = Get.find<ProfileController>().userInfoModel;
+      if (userInfo?.companyId != null) {
+        return '&organization_id=${userInfo!.companyId}';
+      }
+    }
+    return '';
   }
 
   @override

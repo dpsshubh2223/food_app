@@ -1,6 +1,7 @@
 import 'package:stackfood_multivendor/features/location/domain/models/prediction_model.dart';
 import 'package:stackfood_multivendor/features/location/domain/models/zone_response_model.dart';
 import 'package:stackfood_multivendor/features/address/domain/models/address_model.dart';
+import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/location/domain/reposotories/location_repo_interface.dart';
 import 'package:stackfood_multivendor/features/location/domain/services/location_service_interface.dart';
 import 'package:stackfood_multivendor/features/location/widgets/permission_dialog.dart';
@@ -142,15 +143,22 @@ class LocationService implements LocationServiceInterface {
 
   @override
   void handleRoute(bool fromSignUp, String? route, bool canRoute) {
+    print('[NAV-DEBUG] handleRoute: fromSignUp=$fromSignUp, route=$route, canRoute=$canRoute, isLoggedIn=${Get.find<AuthController>().isLoggedIn()}');
     if (fromSignUp) {
+      print('[NAV-DEBUG] handleRoute -> interest route');
       Get.offAllNamed(RouteHelper.getInterestRoute());
     } else {
       if (route != null && canRoute) {
+        print('[NAV-DEBUG] handleRoute -> explicit route branch: $route');
         Get.offAllNamed(route == RouteHelper.signIn
             ? RouteHelper.getSignInRoute(RouteHelper.splash)
             : route);
-      } else {
+      } else if (Get.find<AuthController>().isLoggedIn()) {
+        print('[NAV-DEBUG] handleRoute -> HOME (logged in)');
         Get.offAllNamed(RouteHelper.getInitialRoute());
+      } else {
+        print('[NAV-DEBUG] handleRoute -> SIGN IN (not logged in)');
+        Get.offAllNamed(RouteHelper.getSignInRoute(RouteHelper.splash));
       }
     }
   }

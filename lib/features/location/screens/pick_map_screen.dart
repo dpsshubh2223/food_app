@@ -1,11 +1,9 @@
 import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
-import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/features/address/domain/models/address_model.dart';
 import 'package:stackfood_multivendor/features/location/controllers/location_controller.dart';
 import 'package:stackfood_multivendor/features/location/widgets/location_search_dialog.dart';
 import 'package:stackfood_multivendor/features/location/widgets/permission_dialog.dart';
-import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/theme_controller.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
@@ -164,15 +162,6 @@ class _PickMapScreenState extends State<PickMapScreen> {
           longitude: locationController.pickPosition.longitude.toString(),
           addressType: 'others', address: locationController.pickAddress,
         );
-        if(!Get.find<AuthController>().isLoggedIn() && !Get.find<AuthController>().isGuestLoggedIn()) {
-          final response = await Get.find<AuthController>().guestLogin();
-          if(response.isSuccess) {
-            Get.find<ProfileController>().setForceFullyUserEmpty();
-          }else {
-            showCustomSnackBar(response.message);
-            return;
-          }
-        }
         locationController.saveAddressAndNavigate(address, widget.fromSignUp, widget.route, widget.canRoute, ResponsiveHelper.isDesktop(Get.context));
       }
     }else {

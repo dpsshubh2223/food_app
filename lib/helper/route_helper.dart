@@ -394,9 +394,11 @@ class RouteHelper {
   static List<GetPage> routes = [
     GetPage(
         name: initial,
-        page: () => getRoute(DashboardScreen(
-            pageIndex: 0,
-            fromSplash: (Get.parameters['from-splash'] == 'true')))),
+        page: () => Get.find<AuthController>().isLoggedIn()
+            ? getRoute(DashboardScreen(
+                pageIndex: 0,
+                fromSplash: (Get.parameters['from-splash'] == 'true')))
+            : const SignInScreen(exitFromApp: true, backFromThis: false)),
     GetPage(
         name: splash,
         page: () {
@@ -499,19 +501,21 @@ class RouteHelper {
     GetPage(name: interest, page: () => const InterestScreen()),
     GetPage(
         name: main,
-        page: () => getRoute(DashboardScreen(
-              pageIndex: Get.parameters['page'] == 'home'
-                  ? 0
-                  : Get.parameters['page'] == 'favourite'
-                      ? 1
-                      : Get.parameters['page'] == 'cart'
-                          ? 2
-                          : Get.parameters['page'] == 'order'
-                              ? 3
-                              : Get.parameters['page'] == 'menu'
-                                  ? 4
-                                  : 0,
-            ))),
+        page: () => Get.find<AuthController>().isLoggedIn()
+            ? getRoute(DashboardScreen(
+                pageIndex: Get.parameters['page'] == 'home'
+                    ? 0
+                    : Get.parameters['page'] == 'favourite'
+                        ? 1
+                        : Get.parameters['page'] == 'cart'
+                            ? 2
+                            : Get.parameters['page'] == 'order'
+                                ? 3
+                                : Get.parameters['page'] == 'menu'
+                                    ? 4
+                                    : 0,
+              ))
+            : const SignInScreen(exitFromApp: true, backFromThis: false)),
     GetPage(name: forgotPassword, page: () => ForgetPassScreen()),
     /*GetPage(name: resetPassword, page: () => NewPassScreen(
       resetToken: Get.parameters['token'], number: Get.parameters['phone'], fromPasswordChange: Get.parameters['page'] == 'password-change',

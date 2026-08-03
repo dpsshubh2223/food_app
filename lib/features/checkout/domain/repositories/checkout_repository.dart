@@ -6,8 +6,9 @@ import 'package:stackfood_multivendor/features/checkout/domain/models/offline_me
 import 'package:stackfood_multivendor/features/checkout/domain/models/offer_model.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/place_order_body_model.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/repositories/checkout_repository_interface.dart';
+import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/util/app_constants.dart';
-import 'package:get/get_connect.dart';
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class CheckoutRepository implements CheckoutRepositoryInterface {
@@ -108,7 +109,18 @@ class CheckoutRepository implements CheckoutRepositoryInterface {
   @override
   Future<List<OfferModel>> getOfferList() async {
     List<OfferModel> offerList = [];
-    Response response = await apiClient.getData(AppConstants.offerListUri);
+    final Map<String, String> queryParameters = {};
+    if (Get.isRegistered<ProfileController>()) {
+      final userInfo = Get.find<ProfileController>().userInfoModel;
+      if (userInfo?.companyId != null) {
+        queryParameters['organization_id'] = userInfo!.companyId.toString();
+      }
+    }
+    String uri = Uri(
+      path: AppConstants.offerListUri,
+      queryParameters: queryParameters.isEmpty ? null : queryParameters,
+    ).toString();
+    Response response = await apiClient.getData(uri);
     print(response.body);
     if (response.statusCode == 200 && response.body != null) {
       dynamic data = response.body is Map && response.body['data'] != null

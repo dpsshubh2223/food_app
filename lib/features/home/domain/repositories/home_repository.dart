@@ -5,8 +5,9 @@ import 'package:stackfood_multivendor/common/enums/data_source_enum.dart';
 import 'package:stackfood_multivendor/features/home/domain/models/banner_model.dart';
 import 'package:stackfood_multivendor/features/home/domain/models/cashback_model.dart';
 import 'package:stackfood_multivendor/features/home/domain/repositories/home_repository_interface.dart';
+import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/util/app_constants.dart';
-import 'package:get/get_connect.dart';
+import 'package:get/get.dart';
 
 class HomeRepository implements HomeRepositoryInterface {
   final ApiClient apiClient;
@@ -19,11 +20,14 @@ class HomeRepository implements HomeRepositoryInterface {
 
   Future<BannerModel?> _getBannerList({required DataSourceEnum source}) async {
     BannerModel? bannerModel;
-    String cacheId = AppConstants.bannerUri;
+    String uri = _getBannerListUri();
+    String cacheId = uri;
 
     switch(source) {
       case DataSourceEnum.client:
-        Response response = await apiClient.getData(AppConstants.bannerUri);
+        Response response = await apiClient.getData(uri);
+        print("Banners");
+        print(response.body);
         if(response.statusCode == 200) {
           bannerModel = BannerModel.fromJson(response.body);
           LocalClient.organize(DataSourceEnum.client, cacheId, jsonEncode(response.body), apiClient.getHeader());
@@ -37,6 +41,24 @@ class HomeRepository implements HomeRepositoryInterface {
     }
 
     return bannerModel;
+  }
+
+  String _getBannerListUri() {
+    final Map<String, String> queryParameters = {};
+
+    if (Get.isRegistered<ProfileController>()) {
+      final userInfo = Get.find<ProfileController>().userInfoModel;
+      print("userInfo?.companyId");
+      print(userInfo?.companyId);
+      if (userInfo?.companyId != null) {
+        queryParameters['organization_id'] = userInfo!.companyId.toString();
+      }
+    }
+
+    return Uri(
+      path: AppConstants.bannerUri,
+      queryParameters: queryParameters.isEmpty ? null : queryParameters,
+    ).toString();
   }
 
   @override

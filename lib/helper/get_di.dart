@@ -357,9 +357,6 @@ Future<Map<String, Map<String, String>>> init() async {
   /// Retrieving localized data
   Map<String, Map<String, String>> languages = {};
   for(LanguageModel languageModel in AppConstants.languages) {
-    final manifest = await rootBundle.loadString('AssetManifest.json');
-    print(manifest.contains('assets/language/en.json')); // should be true
-
     String jsonStringValues =  await rootBundle.loadString('assets/language/${languageModel.languageCode}.json');
     Map<String, dynamic> mappedJson = jsonDecode(jsonStringValues);
     Map<String, String> json = {};

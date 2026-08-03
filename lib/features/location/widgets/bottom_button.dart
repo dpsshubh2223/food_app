@@ -2,12 +2,10 @@ import 'package:stackfood_multivendor/common/widgets/custom_button_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_loader_widget.dart';
 import 'package:stackfood_multivendor/features/address/controllers/address_controller.dart';
 import 'package:stackfood_multivendor/features/address/domain/models/address_model.dart';
-import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/location/controllers/location_controller.dart';
 import 'package:stackfood_multivendor/features/location/domain/models/zone_response_model.dart';
 import 'package:stackfood_multivendor/features/location/widgets/permission_dialog.dart';
 import 'package:stackfood_multivendor/features/location/widgets/pick_map_dialog.dart';
-import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
@@ -38,16 +36,7 @@ class BottomButton extends StatelessWidget {
               AddressModel address = await Get.find<LocationController>().getCurrentLocation(true);
               ZoneResponseModel response = await Get.find<LocationController>().getZone(address.latitude, address.longitude, false);
               if(response.isSuccess) {
-                if(!Get.find<AuthController>().isGuestLoggedIn() || !Get.find<AuthController>().isLoggedIn()) {
-                  Get.find<AuthController>().guestLogin().then((response) {
-                    if(response.isSuccess) {
-                      Get.find<ProfileController>().setForceFullyUserEmpty();
-                      Get.find<LocationController>().saveAddressAndNavigate(address, fromSignUp, route, route != null, ResponsiveHelper.isDesktop(Get.context));
-                    }
-                  });
-                } else {
-                  Get.find<LocationController>().saveAddressAndNavigate(address, fromSignUp, route, route != null, ResponsiveHelper.isDesktop(Get.context));
-                }
+                Get.find<LocationController>().saveAddressAndNavigate(address, fromSignUp, route, route != null, ResponsiveHelper.isDesktop(Get.context));
               }else {
                 Get.back();
                 Get.toNamed(RouteHelper.getPickMapRoute(route ?? RouteHelper.accessLocation, route != null));

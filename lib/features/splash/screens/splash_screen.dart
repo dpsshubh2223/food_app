@@ -7,10 +7,10 @@ import 'package:stackfood_multivendor/features/notification/domain/models/notifi
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/features/splash/domain/models/deep_link_body.dart';
 import 'package:stackfood_multivendor/helper/address_helper.dart';
-import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:video_player/video_player.dart';
 
 class SplashScreen extends StatefulWidget {
   final NotificationBodyModel? notificationBody;
@@ -24,10 +24,22 @@ class SplashScreen extends StatefulWidget {
 class SplashScreenState extends State<SplashScreen> {
   final GlobalKey<ScaffoldState> _globalKey = GlobalKey();
   StreamSubscription<List<ConnectivityResult>>? _onConnectivityChanged;
+  late VideoPlayerController _videoPlayerController;
+  bool _isVideoInitialized = false;
 
   @override
   void initState() {
     super.initState();
+
+    _videoPlayerController = VideoPlayerController.asset(Images.splashVideo)
+      ..setLooping(true)
+      ..setVolume(0)
+      ..initialize().then((_) {
+        if (mounted) {
+          setState(() => _isVideoInitialized = true);
+          _videoPlayerController.play();
+        }
+      });
 
     bool firstTime = true;
     _onConnectivityChanged = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
@@ -37,7 +49,7 @@ class SplashScreenState extends State<SplashScreen> {
         ScaffoldMessenger.of(Get.context!).hideCurrentSnackBar();
         ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
           backgroundColor: isConnected ? Colors.green : Colors.red,
-          duration: Duration(seconds: isConnected ? 3 : 6000),
+          duration: Duration(seconds: isConnected ? 6 : 6000),
           content: Text(isConnected ? 'connected'.tr : 'no_connection'.tr, textAlign: TextAlign.center),
         ));
         if(isConnected) {
@@ -46,6 +58,8 @@ class SplashScreenState extends State<SplashScreen> {
           Get.to(const NoInternetScreen());
         }
       }
+
+
 
       firstTime = false;
 
@@ -68,6 +82,7 @@ class SplashScreenState extends State<SplashScreen> {
     super.dispose();
 
     _onConnectivityChanged?.cancel();
+    _videoPlayerController.dispose();
   }
 
   void _route() {
@@ -80,15 +95,16 @@ class SplashScreenState extends State<SplashScreen> {
       key: _globalKey,
       body: GetBuilder<SplashController>(builder: (splashController) {
         return Center(
-          child: splashController.hasConnection ? Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset(Images.logo, width: 100),
-              const SizedBox(height: Dimensions.paddingSizeLarge),
-
-
-            ],
-          ) : NoInternetScreen(child: SplashScreen(notificationBody: widget.notificationBody, linkBody: widget.linkBody)),
+          child: splashController.hasConnection ? (_isVideoInitialized ? SizedBox.expand(
+            child: FittedBox(
+              fit: BoxFit.cover,
+              child: SizedBox(
+                width: _videoPlayerController.value.size.width,
+                height: _videoPlayerController.value.size.height,
+                child: VideoPlayer(_videoPlayerController),
+              ),
+            ),
+          ) : const SizedBox()) : NoInternetScreen(child: SplashScreen(notificationBody: widget.notificationBody, linkBody: widget.linkBody)),
         );
       }),
     );

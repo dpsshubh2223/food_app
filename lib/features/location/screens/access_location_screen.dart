@@ -10,7 +10,6 @@ import 'package:stackfood_multivendor/features/location/controllers/location_con
 import 'package:stackfood_multivendor/features/location/domain/models/zone_response_model.dart';
 import 'package:stackfood_multivendor/features/location/widgets/bottom_button.dart';
 import 'package:stackfood_multivendor/features/location/widgets/pick_map_dialog.dart';
-import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/helper/address_helper.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
@@ -74,16 +73,7 @@ class _AccessLocationScreenState extends State<AccessLocationScreen> {
     AddressModel address = await Get.find<LocationController>().getCurrentLocation(true);
     ZoneResponseModel response = await Get.find<LocationController>().getZone(address.latitude, address.longitude, false);
     if(response.isSuccess) {
-      if(!Get.find<AuthController>().isGuestLoggedIn() || !Get.find<AuthController>().isLoggedIn()) {
-        Get.find<AuthController>().guestLogin().then((response) {
-          if(response.isSuccess) {
-            Get.find<ProfileController>().setForceFullyUserEmpty();
-            Get.find<LocationController>().saveAddressAndNavigate(address, false, null, false, ResponsiveHelper.isDesktop(Get.context));
-          }
-        });
-      } else {
-        Get.find<LocationController>().saveAddressAndNavigate(address, false, null, false, ResponsiveHelper.isDesktop(Get.context));
-      }
+      Get.find<LocationController>().saveAddressAndNavigate(address, widget.fromSignUp, widget.route, widget.route != null, ResponsiveHelper.isDesktop(Get.context));
     } else {
       showCustomSnackBar('service_not_available_in_current_location'.tr);
     }

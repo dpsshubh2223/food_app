@@ -39,6 +39,7 @@ double _getMinimumVersion() {
 
 void _handleNavigation(
     NotificationBodyModel? notificationBody, DeepLinkBody? linkBody) async {
+  print('[NAV-DEBUG] _handleNavigation: isLoggedIn=${Get.find<AuthController>().isLoggedIn()}, showIntro=${Get.find<SplashController>().showIntro()}');
   if (Get.find<AuthController>().isLoggedIn()) {
     if (notificationBody != null && linkBody == null) {
       _forNotificationRouteProcess(notificationBody);
@@ -84,6 +85,7 @@ Future<void> _forLoggedInUserRouteProcess() async {
 }
 
 void _newlyRegisteredRouteProcess() {
+  print('[NAV-DEBUG] _newlyRegisteredRouteProcess: languages=${AppConstants.languages.length}');
   if (AppConstants.languages.length > 1) {
     Get.offNamed(RouteHelper.getLanguageRoute('splash'));
   } else {
@@ -92,6 +94,7 @@ void _newlyRegisteredRouteProcess() {
 }
 
 void _forLoggedOutUserRouteProcess() {
+  print('[NAV-DEBUG] _forLoggedOutUserRouteProcess: savedAddress=${AddressHelper.getAddressFromSharedPref() != null}');
   if (AddressHelper.getAddressFromSharedPref() != null) {
     Get.offNamed(RouteHelper.getSignInRoute(RouteHelper.splash));
   } else {

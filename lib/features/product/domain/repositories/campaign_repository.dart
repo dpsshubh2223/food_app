@@ -6,8 +6,9 @@ import 'package:stackfood_multivendor/common/models/product_model.dart';
 import 'package:stackfood_multivendor/api/api_client.dart';
 import 'package:stackfood_multivendor/features/product/domain/models/basic_campaign_model.dart';
 import 'package:stackfood_multivendor/features/product/domain/repositories/campaign_repository_interface.dart';
+import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/util/app_constants.dart';
-import 'package:get/get_connect.dart';
+import 'package:get/get.dart';
 
 class CampaignRepository implements CampaignRepositoryInterface {
   final ApiClient apiClient;
@@ -48,7 +49,7 @@ class CampaignRepository implements CampaignRepositoryInterface {
   }
   Future<List<BasicCampaignModel>?> _getBasicCampaignList() async {
     List<BasicCampaignModel>? basicCampaignList;
-    Response response = await apiClient.getData(AppConstants.basicCampaignUri);
+    Response response = await apiClient.getData(_getUriWithOrganizationId(AppConstants.basicCampaignUri));
     if (response.statusCode == 200) {
       basicCampaignList = [];
       response.body.forEach((campaign) => basicCampaignList!.add(BasicCampaignModel.fromJson(campaign)));
@@ -62,7 +63,7 @@ class CampaignRepository implements CampaignRepositoryInterface {
 
     switch(source!){
       case DataSourceEnum.client:
-        Response response = await apiClient.getData(AppConstants.itemCampaignUri);
+        Response response = await apiClient.getData(_getUriWithOrganizationId(AppConstants.itemCampaignUri));
         if(response.statusCode == 200){
           itemCampaignList = [];
           response.body.forEach((campaign) => itemCampaignList!.add(Product.fromJson(campaign)));
@@ -84,6 +85,20 @@ class CampaignRepository implements CampaignRepositoryInterface {
   @override
   Future update(Map<String, dynamic> body, int? id) {
     throw UnimplementedError();
+  }
+
+  String _getUriWithOrganizationId(String path) {
+    final Map<String, String> queryParameters = {};
+    if (Get.isRegistered<ProfileController>()) {
+      final userInfo = Get.find<ProfileController>().userInfoModel;
+      if (userInfo?.companyId != null) {
+        queryParameters['organization_id'] = userInfo!.companyId.toString();
+      }
+    }
+    return Uri(
+      path: path,
+      queryParameters: queryParameters.isEmpty ? null : queryParameters,
+    ).toString();
   }
 
 }

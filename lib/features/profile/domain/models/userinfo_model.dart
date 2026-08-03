@@ -99,7 +99,7 @@ class UserInfoModel {
         ? json['company_id']
         : json['organization_id'] is int
             ? json['organization_id']
-            : int.tryParse('${json['company_id'] ?? json['organization_id']}');
+            : int.tryParse('${json['company_id'] ?? json['organization_id'] ?? json['company']?['id'] ?? json['organization']?['id']}');
     zoneName =
         json['zone_name']?.toString() ?? json['zone']?['name']?.toString();
     areaName =

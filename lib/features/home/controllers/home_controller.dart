@@ -1,7 +1,9 @@
 import 'package:stackfood_multivendor/common/enums/data_source_enum.dart';
+import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/home/domain/models/banner_model.dart';
 import 'package:stackfood_multivendor/features/home/domain/models/cashback_model.dart';
 import 'package:stackfood_multivendor/features/home/domain/services/home_service_interface.dart';
+import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController implements GetxService {
@@ -31,6 +33,9 @@ class HomeController extends GetxController implements GetxService {
     if(_bannerImageList == null || reload || fromRecall) {
       if(!fromRecall) {
         _bannerImageList = null;
+      }
+      if(Get.find<AuthController>().isLoggedIn() && Get.find<ProfileController>().userInfoModel == null) {
+        await Get.find<ProfileController>().getUserInfo();
       }
       BannerModel? bannerModel;
       if(dataSource == DataSourceEnum.local){

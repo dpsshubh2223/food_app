@@ -1,7 +1,5 @@
-import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/features/address/domain/models/address_model.dart';
-import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/location/controllers/location_controller.dart';
 import 'package:stackfood_multivendor/features/location/widgets/serach_location_widget.dart';
 import 'package:stackfood_multivendor/helper/address_helper.dart';
@@ -292,20 +290,9 @@ class _PickMapDialogState extends State<PickMapDialog> {
           longitude: locationController.pickPosition.longitude.toString(),
           addressType: 'others', address: locationController.pickAddress,
         );
-        if(!Get.find<AuthController>().isGuestLoggedIn() || !Get.find<AuthController>().isLoggedIn()) {
-          Get.find<AuthController>().guestLogin().then((response) {
-            if(response.isSuccess) {
-              Get.find<ProfileController>().setForceFullyUserEmpty();
-              locationController.saveAddressAndNavigate(
-                address, widget.fromSignUp, widget.route, widget.canRoute, ResponsiveHelper.isDesktop(Get.context),
-              );
-            }
-          });
-        } else{
-          locationController.saveAddressAndNavigate(
-            address, widget.fromSignUp, widget.route, widget.canRoute, ResponsiveHelper.isDesktop(context),
-          );
-        }
+        locationController.saveAddressAndNavigate(
+          address, widget.fromSignUp, widget.route, widget.canRoute, ResponsiveHelper.isDesktop(context),
+        );
       }
     }else {
       showCustomSnackBar('pick_an_address'.tr);

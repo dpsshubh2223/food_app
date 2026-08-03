@@ -145,6 +145,14 @@ class _MyAppState extends State<MyApp> {
             fallbackLocale: Locale(AppConstants.languages[0].languageCode!, AppConstants.languages[0].countryCode),
             initialRoute: GetPlatform.isWeb ? RouteHelper.getInitialRoute() : RouteHelper.getSplashRoute(widget.body, widget.linkBody),
             getPages: RouteHelper.routes,
+            routingCallback: (routing) {
+              // ignore: avoid_print
+              print('[NAV-DEBUG][ROUTE] current=${routing?.current}');
+              if (routing?.current == '/' || (routing?.current.startsWith('/?') ?? false)) {
+                // ignore: avoid_print
+                print('[NAV-DEBUG][ROUTE][STACK] ${StackTrace.current}');
+              }
+            },
             defaultTransition: Transition.topLevel,
             transitionDuration: const Duration(milliseconds: 500),
             builder: (BuildContext context, widget) {
