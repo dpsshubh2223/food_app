@@ -1,22 +1,21 @@
 {
   "project_info": {
-    "project_number": "770245856829",
-    "firebase_url": "https://bazermart-default-rtdb.firebaseio.com",
-    "project_id": "bazermart",
-    "storage_bucket": "bazermart.firebasestorage.app"
+    "project_number": "1008806610906",
+    "project_id": "umi1-7b2c9",
+    "storage_bucket": "umi1-7b2c9.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:770245856829:android:e4a029523b5e782e13a454",
+        "mobilesdk_app_id": "1:1008806610906:android:f071bd2dda461f4d7722e3",
         "android_client_info": {
-          "package_name": "com.bazermartin.com"
+          "package_name": "com.umi.com"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAVJHHJLYQXHxT2kWFk_ml3Nnf_aTYttwk"
+          "current_key": "AIzaSyA9fkwLa43rvEXPdIiHolUqULPX_4MOoiU"
         }
       ],
       "services": {

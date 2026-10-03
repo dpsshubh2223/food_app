@@ -25,6 +25,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:meta_seo/meta_seo.dart';
 import 'package:url_strategy/url_strategy.dart';
+import 'firebase_options.dart';
 import 'helper/get_di.dart' as di;
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -35,6 +36,9 @@ Future<void> main() async {
   }
   setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // // Pass all uncaught "fatal" errors from the framework to Crashlytics
   // FlutterError.onError = (errorDetails) {
@@ -49,23 +53,23 @@ Future<void> main() async {
 
   DeepLinkBody? linkBody;
 
-  if (Firebase.apps.isEmpty) {
-    if (GetPlatform.isWeb) {
-      await Firebase.initializeApp(options: const FirebaseOptions(
-        apiKey: "AIzaSyBJz1adPiJfGFnSFm8cDWQ-kZm0GwOTJOk",
-        authDomain: "bazermart.firebaseapp.com",
-        databaseURL: "https://bazermart-default-rtdb.firebaseio.com",
-        projectId: "bazermart",
-        storageBucket: "bazermart.firebasestorage.app",
-        messagingSenderId: "770245856829",
-        appId: "1:770245856829:web:0e8661c536e45dae13a454",
-        measurementId: "G-5X8LM7PL4K",
-      ));
-      MetaSEO().config();
-    } else {
-      await Firebase.initializeApp(); // Android/iOS auto picks from google-services.json
-    }
-  }
+  // if (Firebase.apps.isEmpty) {
+  //   if (GetPlatform.isWeb) {
+  //     await Firebase.initializeApp(options: const FirebaseOptions(
+  //       apiKey: "AIzaSyBJz1adPiJfGFnSFm8cDWQ-kZm0GwOTJOk",
+  //       authDomain: "bazermart.firebaseapp.com",
+  //       databaseURL: "https://bazermart-default-rtdb.firebaseio.com",
+  //       projectId: "bazermart",
+  //       storageBucket: "bazermart.firebasestorage.app",
+  //       messagingSenderId: "770245856829",
+  //       appId: "1:770245856829:web:0e8661c536e45dae13a454",
+  //       measurementId: "G-5X8LM7PL4K",
+  //     ));
+  //     MetaSEO().config();
+  //   } else {
+  //     await Firebase.initializeApp(); // Android/iOS auto picks from google-services.json
+  //   }
+  // }
 
 
    Map<String, Map<String, String>> languages = await di.init();
